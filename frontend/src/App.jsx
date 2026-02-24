@@ -1,49 +1,59 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 function App() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState(null);
+  const [number, setNumber] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetch("http://127.0.0.1:5000")
+  const getTrain = (e) => {
+    e.preventDefault();
+
+    if (!number) return;
+
+    setLoading(true);
+
+    fetch(`${import.meta.env.VITE_API_URL}/train?No=${number}`)
       .then((res) => res.json())
       .then((result) => {
-        console.log(result);
         setData(result);
+        setLoading(false);
       })
-      .catch((err) => console.log(err));
-  }, []);
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-10">
-  <h2 className="text-2xl font-bold mb-6">Trains Data</h2>
+      <form onSubmit={getTrain} className="space-x-3">
+        <label>Enter Train No:</label>
 
-  <div className="overflow-x-auto">
-    <table className="min-w-full bg-white shadow-md rounded-lg">
-      <thead className="bg-gray-200">
-        <tr>
-          {data.length > 0 &&
-            Object.keys(data[0]).map((key) => (
-              <th key={key} className="px-4 py-2 text-left text-sm font-semibold">
-                {key}
-              </th>
-            ))}
-        </tr>
-      </thead>
+        <input
+          type="number"
+          value={number}
+          onChange={(e) => setNumber(e.target.value)}
+          className="border p-2"
+        />
 
-      <tbody>
-        {data.map((row, index) => (
-          <tr key={index} className="border-t">
-            {Object.values(row).map((value, i) => (
-              <td key={i} className="px-4 py-2 text-sm">
-                {value ?? "N/A"}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2">
+          Submit
+        </button>
+      </form>
+
+      {loading && <h1 className="mt-5">Loading...</h1>}
+
+      {data && (
+        <div className="mt-5">
+          {Object.entries(data).map(([key, value]) => (
+            <div key={key}>
+              <h1 className="font-bold">{key} :</h1>
+              <h2>{value}</h2>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
