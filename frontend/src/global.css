@@ -1,0 +1,66 @@
+/* ═══════════════════════════════════════════════════════
+   RAILWAY — GLOBAL DESIGN SYSTEM
+   Fonts: Playfair Display (display) + DM Sans (body)
+═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  /* core palette */
+  --ink:         #08090c;
+  --ink-2:       #0f1117;
+  --ink-3:       #181b23;
+  --ink-4:       #21242f;
+  --ink-5:       #2c3040;
+
+  /* gold — primary accent */
+  --gold:        #c9973a;
+  --gold-light:  #e8b454;
+  --gold-pale:   rgba(201,151,58,.12);
+  --gold-glow:   rgba(201,151,58,.35);
+
+  /* signal */
+  --sig-red:     #e05252;
+  --sig-amber:   #d4883a;
+  --sig-green:   #3db87a;
+
+  /* text */
+  --text-1:      #f0eeeb;
+  --text-2:      #9ca3af;
+  --text-3:      #6b7280;
+
+  /* glass */
+  --glass:       rgba(255,255,255,.042);
+  --glass-border:rgba(255,255,255,.09);
+
+  /* typography */
+  --font-display:'Playfair Display', Georgia, serif;
+  --font-body:   'DM Sans', system-ui, sans-serif;
+
+  /* sidebar */
+  --sidebar-w:   260px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--ink);
+  color: var(--text-1);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── NOISE GRAIN overlay on body ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}

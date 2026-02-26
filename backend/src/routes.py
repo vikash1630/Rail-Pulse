@@ -104,3 +104,5 @@ def register_routes(app):
 
         data, status = getTrainRoutes(train)
         return jsonify(data), status
+    
+    
