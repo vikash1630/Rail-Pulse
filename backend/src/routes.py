@@ -1,22 +1,27 @@
 # routes.py
-# This file connects URL endpoints to controller functions
+# This file connects API endpoints to controller functions
 
 from flask import request, jsonify
-from src.controller import get_train_by_number
-from src.controller import get_train_by_name
-
+from src.controller import (
+    get_train_by_number,
+    get_train_by_name,
+    compare_trains_by_number,
+    compare_trains_by_name,
+    getTrainRoutes
+)
 
 def register_routes(app):
 
-    # API: Get train by number
-    @app.route("/train/Number", methods=["GET"])
+    # --------------------------------------------------
+    # GET Train By Number
+    # Example:
+    # /api/train/number?number=14331
+    # --------------------------------------------------
+    @app.route("/api/train/number", methods=["GET"])
     def get_train_by_number_function():
 
-        # Get train number from query parameter
-        # Example: /train?number=12345
-        train_no = request.args.get("Number")
+        train_no = request.args.get("number")
 
-        # Validate input
         if not train_no:
             return jsonify({"error": "Train number is required"}), 400
 
@@ -25,25 +30,77 @@ def register_routes(app):
         except ValueError:
             return jsonify({"error": "Train number must be integer"}), 400
 
-        # Call controller
-        data = get_train_by_number(train_no)
+        data, status = get_train_by_number(train_no)
+        return jsonify(data), status
 
-        return jsonify(data)
-    
-    @app.route("/train/Name", methods=["GET"])
+
+    # --------------------------------------------------
+    # GET Train By Name
+    # Example:
+    # /api/train/name?name=Jaipur Rajdhani
+    # --------------------------------------------------
+    @app.route("/api/train/name", methods=["GET"])
     def get_train_by_name_function():
-        train_name = request.args.get("Name")
+
+        train_name = request.args.get("name")
 
         if not train_name:
-            return jsonify({"error": "Train Name is Required"}), 400
-        
-        try:
-            train_name = str(train_name)
-        except ValueError:
-            return jsonify({"error": "Train Name must contain Characters"}), 400
-        
-        data = get_train_by_name(train_name)
-        
+            return jsonify({"error": "Train name is required"}), 400
 
-        return jsonify(data)
+        data, status = get_train_by_name(train_name)
+        return jsonify(data), status
 
+
+    # --------------------------------------------------
+    # Compare Two Trains By Number
+    # Example:
+    # /api/train/compare/bynumber?train1=14331&train2=53550
+    # --------------------------------------------------
+    @app.route("/api/train/compare/bynumber", methods=["GET"])
+    def train_comparison_by_number():
+
+        train1 = request.args.get("train1")
+        train2 = request.args.get("train2")
+
+        if not train1 or not train2:
+            return jsonify({"error": "Provide both train1 and train2"}), 400
+
+        data, status = compare_trains_by_number(train1, train2)
+        return jsonify(data), status
+
+
+    # --------------------------------------------------
+    # Compare Two Trains By Name
+    # Example:
+    # /api/train/compare/byname?train1=Chennai Garib Rath&train2=Surat Garib Rath
+    # --------------------------------------------------
+    @app.route("/api/train/compare/byname", methods=["GET"])
+    def train_comparison_by_name():
+
+        train1 = request.args.get("train1")
+        train2 = request.args.get("train2")
+
+        if not train1 or not train2:
+            return jsonify({"error": "Provide both train names"}), 400
+
+        data, status = compare_trains_by_name(train1, train2)
+        return jsonify(data), status
+
+
+    # --------------------------------------------------
+    # Get Train Route Map Data
+    # Returns route coordinates for all trains
+    # Optional filter by train name
+    #
+    # Examples:
+    # /api/train/routeMap
+    # /api/train/routeMap?trainName=Jaipur Rajdhani
+    # --------------------------------------------------
+    @app.route('/api/train/routeMap', methods=["GET"])
+    def route_map():
+
+        # Optional filter parameter
+        train = request.args.get("trainName")
+
+        data, status = getTrainRoutes(train)
+        return jsonify(data), status
