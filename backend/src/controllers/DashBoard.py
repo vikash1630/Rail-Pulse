@@ -3,17 +3,27 @@ from src.models.getTrainDetails import fetch_all_trains
 trains = fetch_all_trains()
 status = 200
 
+
 def DashBoard():
     Total_Trains = trains.shape[0]
     Unique_Railway_Zones = trains["RailwayZone"].nunique()
     Unique_Routes = trains["stops"].nunique()
 
-    arrival = trains["StartingPoint"][1]
-    destination = trains["FinalDestination"][1]
+    arrival = trains["StartingPoint"][1].strip()
+    destination = trains["FinalDestination"][1].strip()
+
     all_Stops = trains["stops"].str.split("|")[1]
-    all_Stops = list(set(all_Stops,arrival,destination))
+
+    # remove spaces
+    all_Stops = [s.strip() for s in all_Stops]
+
+    # combine + remove duplicates
+    all_Stops = list(set(all_Stops + [arrival, destination]))
+
+    # sort stations
     Sorted_Stops = sorted(all_Stops)
-    Stops_Count = len(all_Stops)
+
+    Stops_Count = len(Sorted_Stops)
 
     Avg_Speed = trains["AverageSpeed_kmph"].mean()
     Avg_Dist = trains["Distance_km"].mean()
