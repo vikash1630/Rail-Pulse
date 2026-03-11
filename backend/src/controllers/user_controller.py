@@ -8,7 +8,7 @@ from flask_jwt_extended import (
     set_access_cookies
 )
 from bson.objectid import ObjectId
-from src.user_model import users_collection
+from src.models.user_model import users_collection
 
 bcrypt = Bcrypt()
 

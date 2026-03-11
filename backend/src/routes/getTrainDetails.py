@@ -2,7 +2,8 @@
 # This file connects API endpoints to controller functions
 
 from flask import request, jsonify
-from src.controller import (
+
+from src.controllers.GetTrainDetails import (
     get_train_by_number,
     get_train_by_name,
     compare_trains_by_number,

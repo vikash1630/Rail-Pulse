@@ -1,7 +1,7 @@
 # controller.py
 # Handles filtering and processing logic
 
-from src.model import fetch_all_trains
+from src.models.getTrainDetails import fetch_all_trains
 
 df = fetch_all_trains()
 status = 200

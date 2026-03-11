@@ -5,8 +5,8 @@ from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 import os
 
-from src.routes import register_routes
-from src.user_routes import register_auth_routes
+from src.routes.getTrainDetails import register_routes
+from src.routes.user_routes import register_auth_routes
 from src.model import seed_trains_to_database
 
 # Load environment variables
@@ -25,7 +25,13 @@ app.config["JWT_COOKIE_SAMESITE"] = "Lax"
 app.config["JWT_COOKIE_CSRF_PROTECT"] = False
 
 # Extensions
-CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+CORS(
+    app,
+    supports_credentials=True,
+    origins=["http://localhost:5173"],
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"]
+)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 

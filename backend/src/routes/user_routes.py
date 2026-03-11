@@ -1,4 +1,4 @@
-from src.user_controller import signup, login, me, logout
+from src.controllers.user_controller import signup, login, me, logout
 
 
 def register_auth_routes(app):
