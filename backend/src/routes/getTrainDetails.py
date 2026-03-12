@@ -1,5 +1,6 @@
-# routes.py
-# This file connects API endpoints to controller functions
+# Phase - 1 part 2 getting train details end points in diffrent ways 
+
+
 
 from flask import request, jsonify
 
@@ -8,7 +9,9 @@ from src.controllers.GetTrainDetails import (
     get_train_by_name,
     compare_trains_by_number,
     compare_trains_by_name,
-    getTrainRoutes
+    getTrainRoutes,
+    get_train_by_zone,
+    get_train_by_category
 )
 
 def register_routes(app):
@@ -50,6 +53,42 @@ def register_routes(app):
 
         data, status = get_train_by_name(train_name)
         return jsonify(data), status
+
+
+
+
+
+    @app.route("/api/trian/zone", methods=["GET"])
+    def get_train_by_zone_function():
+        train_zone = request.args.get("zone")
+        print(train_zone)
+
+        if not train_zone:
+            return jsonify({"error": "Train name is required"}), 400
+        
+        
+        data, status = get_train_by_zone(train_zone)
+        print(data)
+
+        return jsonify(data), status
+
+    @app.route("/api/trian/category", methods=["GET"])
+    def get_train_by_category_function():
+        train_cat = request.args.get("cat")
+        print(train_cat)
+
+        if not train_cat:
+            return jsonify({"error": "Train name is required"}), 400
+        
+        
+        data, status = get_train_by_category(train_cat)
+        print(data)
+
+        return jsonify(data), status
+
+
+
+
 
 
     # --------------------------------------------------

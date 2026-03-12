@@ -100,6 +100,10 @@ def compare_trains_by_name(train1, train2):
         "train2": t2.iloc[0].to_dict()
     }, status
 
+
+# -----------------------------------
+# Get Trains By Zone
+# -----------------------------------
 def getTrainRoutes(train):
 
     if df is None:
@@ -119,3 +123,40 @@ def getTrainRoutes(train):
 
     return ans, status
 
+def get_train_by_zone(train_cat):
+    zones = df["RailwayZone"]
+    
+    zones = list(set(zones))
+    # print(zones)
+
+    if train_cat not in zones:
+         return {"error": "Incorrect Zone"}, 500
+    
+    res = df[df["RailwayZone"] == train_cat]
+    print("1")
+    print(res)
+    trains = res.to_dict(orient="records")
+
+    return {
+        "count": len(trains),
+        "trains": trains
+    }, status
+
+def get_train_by_category(train_cat):
+    category = df["TrainCategory"]
+    
+    category = list(set(category))
+    # print(category)
+
+    if train_cat not in category:
+         return {"error": "Incorrect Category"}, 500
+    
+    res = df[df["TrainCategory"] == train_cat]
+    print("1")
+    print(res)
+    trains = res.to_dict(orient="records")
+
+    return {
+        "count": len(trains),
+        "trains": trains
+    }, status
