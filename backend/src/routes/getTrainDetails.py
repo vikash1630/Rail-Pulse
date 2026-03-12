@@ -11,7 +11,8 @@ from src.controllers.GetTrainDetails import (
     compare_trains_by_name,
     getTrainRoutes,
     get_train_by_zone,
-    get_train_by_category
+    get_train_by_category,
+    get_train_by_Route_Type
 )
 
 def register_routes(app):
@@ -87,7 +88,16 @@ def register_routes(app):
         return jsonify(data), status
 
 
+    @app.route("/api/train/Routetype", methods=["GET"])
+    def get_train_by_routeType_function():
+        RouteType = request.args.get("RType")
 
+        if not RouteType:
+            return jsonify({"error": "route Type is required"}), 400
+        
+        data, status = get_train_by_Route_Type(RouteType)
+
+        return jsonify(data), status
 
 
 

@@ -8,6 +8,7 @@ import os
 from src.routes.getTrainDetails import register_routes
 from src.routes.user_routes import register_auth_routes
 from src.routes.DashBoard import register_dashboard_routes
+from src.routes.TrainRoute import Train_Routes
 from src.model import seed_trains_to_database
 
 # Load environment variables
@@ -40,6 +41,7 @@ jwt = JWTManager(app)
 register_routes(app)
 register_auth_routes(app)
 register_dashboard_routes(app)
+Train_Routes(app)
 
 if __name__ == "__main__":
     app.run(debug=True)

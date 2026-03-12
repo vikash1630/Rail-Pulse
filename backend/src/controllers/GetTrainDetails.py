@@ -4,6 +4,7 @@
 from src.models.getTrainDetails import fetch_all_trains
 
 df = fetch_all_trains()
+
 status = 200
 
 # -----------------------------------
@@ -143,6 +144,7 @@ def get_train_by_zone(train_cat):
     }, status
 
 def get_train_by_category(train_cat):
+
     category = df["TrainCategory"]
     
     category = list(set(category))
@@ -160,3 +162,17 @@ def get_train_by_category(train_cat):
         "count": len(trains),
         "trains": trains
     }, status
+
+
+def get_train_by_Route_Type(RouteType):
+    trains = df[df["RouteType"] == RouteType]
+
+    if not trains.empty:
+        trains = trains.to_dict(orient="records")
+        return {
+            "count": len(trains),
+            "trains": trains
+        }, 200
+    
+    return {"error": "Invalid route type or Trains Not Found"}, 400
+
