@@ -10,6 +10,7 @@ from src.routes.user_routes import register_auth_routes
 from src.routes.DashBoard import register_dashboard_routes
 from src.routes.TrainRoute import Train_Routes
 from src.routes.DemandAnalysis import Demand_Routes
+from src.routes.RevenueAnalytics import RevenueAnalytics
 from src.model import seed_trains_to_database
 
 # Load environment variables
@@ -44,6 +45,7 @@ register_auth_routes(app)
 register_dashboard_routes(app)
 Train_Routes(app)
 Demand_Routes(app)
+RevenueAnalytics(app)
 
 
 if __name__ == "__main__":
