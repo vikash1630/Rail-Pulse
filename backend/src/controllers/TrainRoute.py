@@ -68,7 +68,27 @@ def get_Shortest_Journey_train():
          "train": train
     }, 200
 
+def get_train_route_by_name(name):
+     train = trains[trains["TrainName"]==name]
+     if train.empty:
+          return {"error":"No Trains Found"}, 400
+     train = train[["TrainNo","TrainName","stops"]]
+     train = train.to_dict(orient="records")
+     return {
+          "count": len(train),
+          "train": train,
+     }, 200
 
+def get_train_route_by_num(num):
+     train = trains[trains["TrainNo"]==num]
+     if train.empty:
+          return {"error":"No Trains Found"}, 400
+     train = train[["TrainNo","TrainName","stops"]]
+     train = train.to_dict(orient="records")
+     return {
+          "count": len(train),
+          "train": train,
+     }, 200
 
 
 

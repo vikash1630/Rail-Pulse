@@ -7,7 +7,10 @@ from src.controllers.TrainRoute import (
     get_Train_By_Star_End_points,
     get_Train_By_Stops,
     get_longest_Journey_train,
-    get_Shortest_Journey_train
+    get_Shortest_Journey_train,
+    get_train_route_by_name,
+    get_train_route_by_num
+
 )
 
 
@@ -50,3 +53,21 @@ def Train_Routes(app):
     def get_Shortest_Journey_train_function():
         data, status = get_Shortest_Journey_train()
         return jsonify(data), status
+    
+    @app.route("/api/train/RouteByname", methods=["GET"])
+    def get_train_route_by_name_function():
+        name = request.args.get("name")
+
+        data, status = get_train_route_by_name(name)
+
+        return jsonify(data), status
+    
+    @app.route("/api/train/RouteBynum", methods=["GET"])
+    def get_train_route_by_num_function():
+        num = request.args.get("num")
+
+        data, status = get_train_route_by_name(num)
+
+        return jsonify(data), status
+    
+
