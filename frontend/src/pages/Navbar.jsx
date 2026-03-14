@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 
 const API_URI = import.meta.env.VITE_API_URL
@@ -44,7 +44,6 @@ const GLOBAL_CSS = `
     overflow-x: hidden;
   }
 
-  /* Noise grain overlay */
   body::after {
     content: '';
     position: fixed;
@@ -56,7 +55,6 @@ const GLOBAL_CSS = `
     background-size: 180px 180px;
   }
 
-  /* Custom scrollbar */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: var(--ink-2); }
   ::-webkit-scrollbar-thumb { background: rgba(201,151,58,.3); border-radius: 99px; }
@@ -75,43 +73,69 @@ const NAV_CSS = `
   @keyframes burger-show { from{opacity:0;transform:scale(.8)} to{opacity:1;transform:scale(1)} }
 
   /* ────────────────────────────────
-     HAMBURGER
+     HAMBURGER — mobile/tablet only
   ──────────────────────────────── */
   .rw-hamburger {
     display: none;
     position: fixed;
     top: 1rem;
     right: 1rem;
-    z-index: 500;
-    width: 44px; height: 44px;
+    z-index: 600;
+    width: 48px; height: 48px;
     background: var(--ink-2);
     border: 1px solid var(--glass-border);
-    border-radius: 12px;
+    border-radius: 14px;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 5px;
     cursor: pointer;
-    backdrop-filter: blur(16px);
-    transition: border-color .3s, box-shadow .3s, background .3s;
-    animation: burger-show .3s cubic-bezier(.22,1,.36,1) both;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    /* GPU-composited only — no layout changes */
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    animation: burger-show .25s cubic-bezier(.22,1,.36,1) both;
+    /* Prevent tap delay + callout on mobile */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    will-change: transform;
   }
   .rw-hamburger:hover {
     border-color: rgba(201,151,58,.4);
     box-shadow: 0 0 24px rgba(201,151,58,.15);
     background: var(--ink-3);
   }
+  /* Active/pressed state for instant tactile feedback */
+  .rw-hamburger:active {
+    transform: scale(.93);
+    transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
+  }
   .rw-hamburger span {
     display: block;
     width: 18px; height: 1.5px;
     background: var(--text-2);
     border-radius: 2px;
-    transition: all .35s cubic-bezier(.22,1,.36,1);
+    /* Use transform only — never width/height changes */
+    transition: transform .3s cubic-bezier(.22,1,.36,1),
+                opacity   .25s ease,
+                background .2s ease;
     transform-origin: center;
+    will-change: transform;
   }
-  .rw-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); background: var(--gold); }
-  .rw-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-  .rw-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); background: var(--gold); }
+  .rw-hamburger.open span:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+    background: var(--gold);
+  }
+  .rw-hamburger.open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .rw-hamburger.open span:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+    background: var(--gold);
+  }
 
   /* ────────────────────────────────
      SIDEBAR
@@ -121,16 +145,22 @@ const NAV_CSS = `
     top: 0; left: 0;
     width: var(--sidebar-w);
     height: 100vh;
+    /* Use dvh for mobile browsers with dynamic toolbars */
+    height: 100dvh;
     background: var(--ink-2);
     border-right: 1px solid var(--glass-border);
     display: flex;
     flex-direction: column;
-    z-index: 300;
+    z-index: 500;
     overflow: hidden;
-    transition: transform .45s cubic-bezier(.22,1,.36,1);
+    /* GPU layer — transform only, no left/margin */
+    transition: transform .35s cubic-bezier(.22,1,.36,1),
+                box-shadow  .35s ease;
+    will-change: transform;
+    /* Enable momentum scrolling on iOS inside nav */
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* Right shimmer border */
   .rw-sidebar::before {
     content: '';
     position: absolute;
@@ -147,7 +177,6 @@ const NAV_CSS = `
     z-index: 10;
   }
 
-  /* Scan line on sidebar (desktop only) */
   @media (min-width: 900px) {
     .rw-sidebar::after {
       content: '';
@@ -161,7 +190,6 @@ const NAV_CSS = `
     }
   }
 
-  /* Vertical track decoration */
   .rw-track-bar {
     position: absolute;
     left: 18px;
@@ -188,6 +216,7 @@ const NAV_CSS = `
     border-bottom: 1px solid var(--glass-border);
     position: relative;
     z-index: 2;
+    flex-shrink: 0;
   }
 
   .rw-signals {
@@ -254,9 +283,13 @@ const NAV_CSS = `
     flex-direction: column;
     gap: 2px;
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: none;
     position: relative;
     z-index: 2;
+    /* Smooth iOS momentum scroll */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
   .rw-nav::-webkit-scrollbar { display: none; }
 
@@ -271,6 +304,7 @@ const NAV_CSS = `
     display: flex;
     align-items: center;
     gap: .6rem;
+    flex-shrink: 0;
   }
   .rw-nav-section::after {
     content: '';
@@ -296,15 +330,21 @@ const NAV_CSS = `
     font-weight: 500;
     letter-spacing: .02em;
     position: relative;
-    transition: color .25s, background .25s, transform .2s;
+    /* Use transform only — no left shift on mobile */
+    transition: color .2s ease, background .2s ease, transform .18s ease;
     overflow: hidden;
     animation: nav-slide-in .4s cubic-bezier(.22,1,.36,1) both;
+    /* Prevent tap highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    /* Ensure min tap size */
+    min-height: 44px;
+    will-change: transform;
   }
   .rw-link:nth-child(2) { animation-delay: .05s; }
   .rw-link:nth-child(3) { animation-delay: .1s; }
   .rw-link:nth-child(4) { animation-delay: .15s; }
 
-  /* Hover fill */
   .rw-link::before {
     content: '';
     position: absolute;
@@ -312,26 +352,41 @@ const NAV_CSS = `
     border-radius: 12px;
     background: linear-gradient(135deg, rgba(201,151,58,.08) 0%, transparent 70%);
     opacity: 0;
-    transition: opacity .25s;
+    transition: opacity .2s ease;
   }
 
-  /* Shimmer on hover */
   .rw-link::after {
     content: '';
     position: absolute;
     top: 0; left: -80%;
     width: 60%; height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,.04), transparent);
-    transition: left .5s ease;
+    transition: left .45s ease;
     pointer-events: none;
   }
 
-  .rw-link:hover {
-    color: var(--text-1);
-    transform: translateX(3px);
+  /* Desktop hover only — media query prevents sluggish hover-state on touch */
+  @media (hover: hover) {
+    .rw-link:hover {
+      color: var(--text-1);
+      transform: translateX(3px);
+    }
+    .rw-link:hover::before { opacity: 1; }
+    .rw-link:hover::after  { left: 150%; }
+    .rw-link:hover .rw-link-icon,
+    .rw-link.active .rw-link-icon {
+      background: var(--gold-pale);
+      border-color: rgba(201,151,58,.3);
+      transform: scale(1.1) rotate(-3deg);
+      box-shadow: 0 0 16px rgba(201,151,58,.12);
+    }
   }
-  .rw-link:hover::before { opacity: 1; }
-  .rw-link:hover::after  { left: 150%; }
+
+  /* Instant pressed feedback on touch */
+  .rw-link:active {
+    transform: scale(.97);
+    transition: transform .06s ease;
+  }
 
   .rw-link.active {
     color: var(--gold-light);
@@ -339,7 +394,12 @@ const NAV_CSS = `
     border: 1px solid rgba(201,151,58,.15);
     box-shadow: 0 0 20px rgba(201,151,58,.06);
   }
-  /* Active left accent */
+  .rw-link.active .rw-link-icon {
+    background: var(--gold-pale);
+    border-color: rgba(201,151,58,.3);
+    transform: scale(1.1) rotate(-3deg);
+    box-shadow: 0 0 16px rgba(201,151,58,.12);
+  }
   .rw-link.active .rw-link-accent {
     position: absolute;
     left: 0; top: 20%; bottom: 20%;
@@ -362,15 +422,11 @@ const NAV_CSS = `
     border: 1px solid var(--glass-border);
     font-size: .95rem;
     flex-shrink: 0;
-    transition: background .25s, border-color .25s, transform .25s, box-shadow .25s;
+    transition: background .2s ease, border-color .2s ease,
+                transform .2s ease, box-shadow .2s ease;
+    will-change: transform;
   }
-  .rw-link:hover .rw-link-icon,
-  .rw-link.active .rw-link-icon {
-    background: var(--gold-pale);
-    border-color: rgba(201,151,58,.3);
-    transform: scale(1.1) rotate(-3deg);
-    box-shadow: 0 0 16px rgba(201,151,58,.12);
-  }
+
   .rw-link-label { position: relative; z-index: 1; }
 
   /* ────────────────────────────────
@@ -396,9 +452,11 @@ const NAV_CSS = `
     top: 0; left: 0; right: 0; height: 1px;
     background: linear-gradient(90deg, transparent, rgba(201,151,58,.5), transparent);
   }
-  .rw-profile-card:hover {
-    border-color: rgba(201,151,58,.4);
-    box-shadow: 0 8px 30px rgba(0,0,0,.3), 0 0 30px rgba(201,151,58,.08);
+  @media (hover: hover) {
+    .rw-profile-card:hover {
+      border-color: rgba(201,151,58,.4);
+      box-shadow: 0 8px 30px rgba(0,0,0,.3), 0 0 30px rgba(201,151,58,.08);
+    }
   }
 
   .rw-avatar {
@@ -437,7 +495,6 @@ const NAV_CSS = `
     margin-top: .15rem;
   }
 
-  /* Online indicator */
   .rw-profile-dot {
     width: 7px; height: 7px;
     border-radius: 50%;
@@ -462,7 +519,7 @@ const NAV_CSS = `
     font-size: .88rem;
     font-weight: 500;
     position: relative;
-    transition: color .25s, transform .2s;
+    transition: color .2s ease, transform .18s ease;
     background: none;
     border: none;
     cursor: pointer;
@@ -470,6 +527,10 @@ const NAV_CSS = `
     text-align: left;
     overflow: hidden;
     z-index: 2;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    min-height: 44px;
+    will-change: transform;
   }
   .rw-logout-btn::before {
     content: '';
@@ -478,10 +539,20 @@ const NAV_CSS = `
     border-radius: 12px;
     background: rgba(224,82,82,.06);
     opacity: 0;
-    transition: opacity .25s;
+    transition: opacity .2s ease;
   }
-  .rw-logout-btn:hover { color: #ff7f7f; transform: translateX(3px); }
-  .rw-logout-btn:hover::before { opacity: 1; }
+  .rw-logout-btn:active {
+    transform: scale(.97);
+    transition: transform .06s ease;
+  }
+  @media (hover: hover) {
+    .rw-logout-btn:hover { color: #ff7f7f; transform: translateX(3px); }
+    .rw-logout-btn:hover::before { opacity: 1; }
+    .rw-logout-btn:hover .rw-logout-icon {
+      background: rgba(224,82,82,.14);
+      transform: scale(1.1) rotate(5deg);
+    }
+  }
 
   .rw-logout-icon {
     width: 34px; height: 34px;
@@ -493,11 +564,8 @@ const NAV_CSS = `
     border: 1px solid rgba(224,82,82,.18);
     font-size: .95rem;
     flex-shrink: 0;
-    transition: background .25s, transform .25s;
-  }
-  .rw-logout-btn:hover .rw-logout-icon {
-    background: rgba(224,82,82,.14);
-    transform: scale(1.1) rotate(5deg);
+    transition: background .2s ease, transform .2s ease;
+    will-change: transform;
   }
 
   /* ────────────────────────────────
@@ -508,6 +576,9 @@ const NAV_CSS = `
     border-top: 1px solid var(--glass-border);
     position: relative;
     z-index: 2;
+    flex-shrink: 0;
+    /* iOS safe area */
+    padding-bottom: max(1.2rem, env(safe-area-inset-bottom));
   }
   .rw-status {
     display: flex;
@@ -540,18 +611,26 @@ const NAV_CSS = `
   }
 
   /* ────────────────────────────────
-     OVERLAY
+     OVERLAY — GPU composited
   ──────────────────────────────── */
   .rw-overlay {
-    display: none;
     position: fixed;
     inset: 0;
     background: rgba(7,8,11,.8);
     backdrop-filter: blur(4px);
-    z-index: 200;
-    transition: opacity .3s;
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 400;
+    /* Use opacity + pointer-events instead of display:none
+       so the transition is GPU-only */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease;
+    will-change: opacity;
   }
-  .rw-overlay.open { display: block; }
+  .rw-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
 
   /* ────────────────────────────────
      LAYOUT
@@ -561,23 +640,62 @@ const NAV_CSS = `
     flex: 1;
     margin-left: var(--sidebar-w);
     min-height: 100vh;
+    /* Smooth desktop resize only */
     transition: margin .45s cubic-bezier(.22,1,.36,1);
   }
 
   /* ────────────────────────────────
-     MOBILE
+     MOBILE / TABLET
   ──────────────────────────────── */
   @media (max-width: 900px) {
-    .rw-hamburger { display: flex; }
-    .rw-sidebar   { transform: translateX(-100%); box-shadow: none; }
+    .rw-hamburger { display: flex;z-index: 600 }
+
+    /* Slide sidebar off-screen with transform only (GPU) */
+    .rw-sidebar {
+      transform: translateX(-100%);
+      box-shadow: none;
+      /* Slightly wider on tablet for comfort */
+      width: min(var(--sidebar-w), 85vw);
+    }
     .rw-sidebar.open {
       transform: translateX(0);
-      box-shadow: 20px 0 60px rgba(0,0,0,.6);
+      box-shadow: 20px 0 60px rgba(0,0,0,.7),
+                  4px 0 20px rgba(201,151,58,.04);
     }
-    .rw-main { margin-left: 0; }
+
+    .rw-main {
+      margin-left: 0;
+      /* No transition on mobile — instant */
+      transition: none;
+    }
+
+    /* Taller logo area on mobile for touch comfort */
+    .rw-logo {
+      padding-top: max(2rem, env(safe-area-inset-top, 0px) + 1rem);
+    }
+
+    /* Slightly larger tap targets on mobile */
+    .rw-link,
+    .rw-logout-btn {
+      padding: .85rem .9rem;
+      min-height: 48px;
+    }
+    .rw-link-icon,
+    .rw-logout-icon {
+      width: 38px; height: 38px;
+    }
   }
 
-  /* Loading shimmer for auth */
+  /* Tablet-specific refinements */
+  @media (min-width: 600px) and (max-width: 900px) {
+    .rw-sidebar {
+      width: 300px;
+    }
+  }
+
+  /* ────────────────────────────────
+     LOADING SHIMMER
+  ──────────────────────────────── */
   .rw-auth-loading {
     margin: 0 .65rem;
     padding: .7rem .9rem;
@@ -597,36 +715,48 @@ const NAV_CSS = `
     animation: sidebar-shimmer 1.5s ease-in-out infinite;
   }
   @keyframes sidebar-shimmer { 0%{left:-100%} 100%{left:100%} }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .rw-sidebar,
+    .rw-overlay,
+    .rw-link,
+    .rw-hamburger span {
+      transition-duration: .01ms !important;
+      animation-duration: .01ms !important;
+    }
+  }
 `
 
 const EXPLORE_ITEMS = [
   { label: "DashBoard", to: "/",               icon:"🎬" },
   { label: "Trains",    to: "/train",          icon: "🚂" },
-  // { label: "Schedule",  to: "/schedule",       icon: "🕐" },
-  // { label: "Routes",    to: "/routes",         icon: "🗺" },
   { label: "Revenue",   to: "/Revenue",        icon: "💲"  },
   { label: "Demand",    to: "/DemandAndInfra", icon:"📊"} ,
 ]
 const MORE_ITEMS = [
-  // { label: "Bookings", to: "/bookings", icon: "🎫" },
-     { label: "About Us", to: "/About", icon:"😐"},
-     { label: "Contact Us", to: "/Contact", icon:"📞"}
+  { label: "About Us",   to: "/About",   icon:"😐"},
+  { label: "Contact Us", to: "/Contact", icon:"📞"}
 ]
 
 const Navbar = ({ children }) => {
-  const [open, setOpen]         = useState(false)
-  const [user, setUser]         = useState(null)
+  const [open, setOpen]           = useState(false)
+  const [user, setUser]           = useState(null)
   const [authReady, setAuthReady] = useState(false)
-  const { pathname }            = useLocation()
-  const navigate                = useNavigate()
+  const { pathname }              = useLocation()
+  const navigate                  = useNavigate()
 
+  // Close sidebar on route change
   useEffect(() => {
     setOpen(false)
+  }, [pathname])
+
+  // Auth check on route change
+  useEffect(() => {
     const checkAuth = async () => {
       try {
         const res  = await fetch(`${API_URI}/api/auth/me`, { credentials: "include" })
         const data = await res.json()
-        console.log(data)
         if (res.ok) { setUser(data) } else { setUser(false) }
       } catch { setUser(false) }
       finally { setAuthReady(true) }
@@ -634,13 +764,31 @@ const Navbar = ({ children }) => {
     checkAuth()
   }, [pathname])
 
-  const handleLogout = async () => {
+  // Lock body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden"
+      document.body.style.touchAction = "none"
+    } else {
+      document.body.style.overflow = ""
+      document.body.style.touchAction = ""
+    }
+    return () => {
+      document.body.style.overflow = ""
+      document.body.style.touchAction = ""
+    }
+  }, [open])
+
+  const handleLogout = useCallback(async () => {
     try {
       await fetch(`${API_URI}/api/auth/logout`, { method: "POST", credentials: "include" })
     } catch { /* ignore */ }
     setUser(false)
     navigate("/login")
-  }
+  }, [navigate])
+
+  const closeSidebar = useCallback(() => setOpen(false), [])
+  const toggleSidebar = useCallback(() => setOpen(o => !o), [])
 
   const avatar = user?.name ? user.name.charAt(0).toUpperCase() : "?"
 
@@ -648,25 +796,30 @@ const Navbar = ({ children }) => {
     <>
       <style>{GLOBAL_CSS + NAV_CSS}</style>
 
-      {/* Hamburger */}
+      {/* Hamburger — mobile/tablet only */}
       <button
         className={`rw-hamburger${open ? " open" : ""}`}
-        onClick={() => setOpen(o => !o)}
-        aria-label="Toggle navigation"
+        onClick={toggleSidebar}
+        aria-label={open ? "Close navigation" : "Open navigation"}
+        aria-expanded={open}
+        aria-controls="rw-sidebar"
       >
         <span /><span /><span />
       </button>
 
-      {/* Overlay */}
+      {/* Overlay — opacity-based, GPU composited */}
       <div
         className={`rw-overlay${open ? " open" : ""}`}
-        onClick={() => setOpen(false)}
+        onClick={closeSidebar}
+        aria-hidden="true"
       />
 
       <div className="rw-layout">
-        <aside className={`rw-sidebar${open ? " open" : ""}`}>
-
-          {/* Vertical track decoration */}
+        <aside
+          id="rw-sidebar"
+          className={`rw-sidebar${open ? " open" : ""}`}
+          aria-label="Navigation"
+        >
           <div className="rw-track-bar" />
 
           {/* Logo */}

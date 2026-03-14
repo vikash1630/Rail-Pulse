@@ -3,715 +3,822 @@ import Navbar from "../../pages/Navbar"
 
 const API_URI = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "")
 
+/* ─────────────────────────────────────────────────────────────
+   CSS — Zero x-scroll, mobile-first, vertical-only layout
+───────────────────────────────────────────────────────────── */
 const DB_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
 
-  @keyframes tw-spin        { to { transform: rotate(360deg); } }
-  @keyframes tw-spin-rev    { to { transform: rotate(-360deg); } }
-  @keyframes tw-card-in     { from { opacity:0; transform:translateY(22px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
-  @keyframes tw-glow-pulse  { 0%,100%{box-shadow:0 0 20px rgba(201,151,58,.15),0 0 60px rgba(201,151,58,.05)} 50%{box-shadow:0 0 40px rgba(201,151,58,.35),0 0 120px rgba(201,151,58,.12)} }
-  @keyframes tw-rail-flow   { 0%{background-position:0 0} 100%{background-position:200px 0} }
-  @keyframes tw-shimmer     { 0%{transform:translateX(-100%)} 100%{transform:translateX(200%)} }
-  @keyframes tw-float       { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-  @keyframes tw-scan        { 0%{top:0%;opacity:.7} 100%{top:100%;opacity:0} }
-  @keyframes tw-badge-pop   { 0%{transform:scale(0.5);opacity:0} 70%{transform:scale(1.14)} 100%{transform:scale(1);opacity:1} }
-  @keyframes tw-bg-move     { 0%{background-position:0 0} 100%{background-position:60px 60px} }
-  @keyframes tw-orb-drift   { 0%{transform:translate(0,0) scale(1)} 33%{transform:translate(40px,-30px) scale(1.06)} 66%{transform:translate(-20px,40px) scale(.95)} 100%{transform:translate(0,0) scale(1)} }
-  @keyframes tw-title-in    { from{clip-path:inset(0 100% 0 0)} to{clip-path:inset(0 0% 0 0)} }
-  @keyframes tw-hero-rise   { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes tw-bar-grow    { from{width:0} }
-  @keyframes tw-counter-up  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes sig-pulse      { 0%,100%{opacity:1;box-shadow:0 0 7px currentColor} 50%{opacity:.35;box-shadow:none} }
-  @keyframes tw-number-in   { from{letter-spacing:.6em;opacity:0} to{letter-spacing:.06em;opacity:1} }
+  /* ── KEYFRAMES ── */
+  @keyframes spin-cw   { to { transform: rotate(360deg); } }
+  @keyframes spin-ccw  { to { transform: rotate(-360deg); } }
+  @keyframes card-rise { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes bar-grow  { from { width: 0; } }
+  @keyframes float-y   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  @keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.7)} }
+  @keyframes scan-line { 0%{top:0%;opacity:.5} 100%{top:100%;opacity:0} }
+  @keyframes grid-drift { 0%{background-position:0 0} 100%{background-position:60px 60px} }
+  @keyframes orb-drift  { 0%{transform:translate(0,0)} 40%{transform:translate(40px,-30px)} 80%{transform:translate(-20px,40px)} 100%{transform:translate(0,0)} }
+  @keyframes fade-num   { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes badge-pop  { 0%{transform:scale(.7);opacity:0} 70%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
+  @keyframes hero-in    { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes glow-pulse { 0%,100%{text-shadow:0 0 20px rgba(201,151,58,.25)} 50%{text-shadow:0 0 50px rgba(201,151,58,.55)} }
 
-  /* ── BASE ── */
+  /* ── HARD RESET for x-scroll prevention ── */
   *, *::before, *::after { box-sizing: border-box; }
 
-  .db-page {
+  .db-root {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
     min-height: 100vh;
-    padding: 2.5rem 1.5rem 6rem;
-    max-width: 1320px;
-    margin: 0 auto;
-    position: relative;
-    overflow-x: clip;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Barlow Condensed', sans-serif;
     color: #f0eeeb;
+    position: relative;
   }
 
-  .db-page::before {
+  .db-root::before {
     content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
     background-image:
-      linear-gradient(rgba(201,151,58,.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(201,151,58,.04) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: tw-bg-move 8s linear infinite;
-    mask-image: radial-gradient(ellipse 90% 90% at 50% 0%, black 30%, transparent 100%);
+      linear-gradient(rgba(201,151,58,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,151,58,.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    animation: grid-drift 12s linear infinite;
+    mask-image: radial-gradient(ellipse 100% 70% at 50% 0%, black 10%, transparent 100%);
   }
-  .db-page::after {
+  .db-root::after {
     content: '';
-    position: fixed;
-    top: -200px; right: -200px;
-    width: 700px; height: 700px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(201,151,58,.065) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-    animation: tw-orb-drift 20s ease-in-out infinite;
+    position: fixed; top: -150px; right: -150px;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,151,58,.07) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+    animation: orb-drift 20s ease-in-out infinite;
   }
-  .db-page > * { position: relative; z-index: 1; }
+
+  .db-page {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 100%;
+    /* Mobile default — safe horizontal padding */
+    padding: 1.4rem .9rem 5rem;
+    overflow-x: hidden;
+  }
 
   /* ── HEADER ── */
   .db-header {
-    margin-bottom: 4rem;
-    padding-top: 1.5rem;
-    animation: tw-hero-rise .8s cubic-bezier(.22,1,.36,1) both;
+    margin-bottom: 2rem;
+    animation: hero-in .7s cubic-bezier(.22,1,.36,1) both;
   }
+
   .db-eyebrow {
-    font-family: 'Space Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
     font-size: .75rem;
-    letter-spacing: .5em;
+    letter-spacing: .3em;
     text-transform: uppercase;
-    color: var(--gold, #c9973a);
-    margin-bottom: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: .8rem;
-    opacity: .85;
+    color: #c9973a;
+    margin-bottom: .9rem;
+    display: flex; align-items: center; gap: .6rem;
+    opacity: .9;
   }
-  .db-eyebrow::before,
-  .db-eyebrow::after {
-    content: '';
-    height: 1px;
-    flex: 1;
-    max-width: 80px;
+  .db-eyebrow::before, .db-eyebrow::after {
+    content: ''; height: 1px; flex: 1; max-width: 50px;
   }
-  .db-eyebrow::before { background: linear-gradient(90deg,  var(--gold, #c9973a), transparent); }
-  .db-eyebrow::after  { background: linear-gradient(270deg, var(--gold, #c9973a), transparent); }
+  .db-eyebrow::before { background: linear-gradient(90deg, #c9973a, transparent); }
+  .db-eyebrow::after  { background: linear-gradient(270deg, #c9973a, transparent); }
 
   .db-title {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(4rem, 12vw, 9rem);
+    font-size: clamp(3.8rem, 18vw, 9rem);
     font-weight: 400;
-    color: var(--text-1, #f0eeeb);
-    letter-spacing: .04em;
     line-height: .88;
+    letter-spacing: .04em;
     text-transform: uppercase;
-    margin: 0 0 .6rem;
+    margin: 0 0 .3rem;
+    animation: glow-pulse 4s ease-in-out infinite;
   }
-  .db-title .db-accent {
-    color: transparent;
-    -webkit-text-stroke: 1.5px var(--gold, #c9973a);
-    position: relative;
-  }
-  .db-title .db-accent::after {
-    content: attr(data-text);
-    position: absolute;
-    left: 0; top: 0;
-    color: var(--gold, #c9973a);
-    clip-path: inset(0 60% 0 0);
-    animation: tw-title-in 2s cubic-bezier(.22,1,.36,1) .4s both;
-  }
+  .db-title .t1 { color: #f0eeeb; display: block; }
+  .db-title .t2 { display: block; color: transparent; -webkit-text-stroke: 1.5px #c9973a; }
+
   .db-subtitle {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.75rem, 1.5vw, 1rem);
-    color: var(--text-3, #6b7280);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.68rem, 2vw, .88rem);
+    color: #6b7280;
     letter-spacing: .15em;
     text-transform: uppercase;
-    margin-top: .8rem;
+    margin-top: .5rem;
   }
 
-  /* ── TICKER ── */
+  /* ── TICKER — 2×2 grid, never overflows ── */
   .db-ticker {
-    display: flex;
-    gap: 2rem;
-    margin-top: 2rem;
-    flex-wrap: wrap;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .6rem;
+    margin-top: 1.6rem;
+    width: 100%;
   }
-  .db-ticker-item { display: flex; align-items: baseline; gap: .5rem; }
+  .db-ticker-card {
+    background: rgba(13,16,22,.92);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    padding: 1rem .8rem;
+    text-align: center;
+    position: relative; overflow: hidden;
+    min-width: 0; /* prevent grid blowout */
+  }
+  .db-ticker-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #c9973a, transparent);
+  }
   .db-ticker-val {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(2.4rem, 4vw, 3.2rem);
-    color: var(--gold-light, #e8b454);
-    letter-spacing: .06em;
-    line-height: 1;
-    animation: tw-number-in .7s ease both;
+    font-size: clamp(2.8rem, 9vw, 4.5rem);
+    color: #e8b454;
+    line-height: 1; letter-spacing: .05em;
+    animation: fade-num .7s ease both;
+    display: block;
   }
   .db-ticker-label {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.65rem, 1.2vw, .8rem);
-    color: var(--text-3, #6b7280);
-    letter-spacing: .2em;
-    text-transform: uppercase;
-  }
-  .db-ticker-divider {
-    width: 1px; height: 36px;
-    background: var(--glass-border, rgba(255,255,255,.08));
-    align-self: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.72rem, 2.2vw, .9rem);
+    color: #6b7280; letter-spacing: .2em;
+    text-transform: uppercase; margin-top: .3rem;
   }
 
-  /* ── STATUS BAR ── */
+  /* ── STATUS BAR — stacked on mobile ── */
   .db-status-bar {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    padding: 1.1rem 1.8rem;
-    background: var(--ink-2, #0d1016);
-    border: 1px solid var(--glass-border, rgba(255,255,255,.08));
-    border-radius: 16px;
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.62rem, 1vw, .78rem);
-    letter-spacing: .12em;
-    color: var(--text-3, #6b7280);
-    position: relative;
-    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .5rem .8rem;
+    padding: .9rem 1rem;
+    background: rgba(13,16,22,.95);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 14px;
+    margin-top: 1.2rem;
+    position: relative; overflow: hidden;
+    width: 100%;
   }
   .db-status-bar::before {
-    content: '';
-    position: absolute;
+    content: ''; position: absolute;
     top: 0; left: 0; right: 0; height: 1px;
     background: linear-gradient(90deg, transparent, rgba(201,151,58,.3), transparent);
   }
+  .db-status-item {
+    display: flex; align-items: center; gap: .45rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.6rem, 1.8vw, .75rem);
+    color: #6b7280; letter-spacing: .08em; text-transform: uppercase;
+    min-width: 0;
+  }
+  .db-status-item b { color: #f0eeeb; }
   .db-status-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    animation: sig-pulse 2s ease-in-out infinite;
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    animation: dot-pulse 2s ease-in-out infinite;
   }
-  .db-status-dot.green { background: var(--sig-green, #3db87a); color: var(--sig-green, #3db87a); }
-  .db-status-dot.gold  { background: var(--gold, #c9973a);      color: var(--gold, #c9973a);      animation-delay: .5s; }
-  .db-status-dot.amber { background: var(--sig-amber, #d4883a); color: var(--sig-amber, #d4883a); animation-delay: 1s; }
-  .db-status-item { display: flex; align-items: center; gap: .6rem; }
-  .db-status-val  { color: var(--text-1, #f0eeeb); font-weight: 700; }
+  .dot-green { background: #3db87a; box-shadow: 0 0 7px #3db87a; }
+  .dot-gold  { background: #c9973a; box-shadow: 0 0 7px #c9973a; animation-delay: .6s; }
+  .dot-amber { background: #d4883a; box-shadow: 0 0 7px #d4883a; animation-delay: 1.2s; }
 
-  /* ── RAIL DIVIDER ── */
-  .db-rail-divider {
-    height: 30px; margin: 2.5rem 0;
-    position: relative; overflow: hidden;
-  }
-  .db-rail-divider::before {
-    content: '';
-    position: absolute;
-    top: 50%; left: 0; right: 0; height: 2px;
-    background: repeating-linear-gradient(90deg,
-      var(--glass-border, rgba(255,255,255,.08)) 0px,
-      var(--glass-border, rgba(255,255,255,.08)) 20px,
-      transparent 20px, transparent 30px
-    );
-    transform: translateY(-50%);
-    animation: tw-rail-flow 2s linear infinite;
-  }
-  .db-rail-divider::after {
-    content: '▶';
-    position: absolute;
-    right: 0; top: 50%;
-    transform: translateY(-50%);
-    color: var(--gold, #c9973a);
-    font-size: .9rem;
-    animation: tw-float 2s ease-in-out infinite;
+  /* ── DIVIDER ── */
+  .db-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,151,58,.18), transparent);
+    margin: 1.8rem 0;
+    width: 100%;
   }
 
   /* ── SECTION LABEL ── */
   .db-section-label {
-    display: flex;
-    align-items: center;
-    gap: .7rem;
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.65rem, 1.1vw, .82rem);
-    font-weight: 700;
-    letter-spacing: .4em;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.75rem, 2.2vw, .95rem);
+    letter-spacing: .35em;
     text-transform: uppercase;
-    color: var(--text-3, #6b7280);
-    margin-bottom: 1.4rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: .6rem;
   }
   .db-section-label::before {
-    content: '';
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--gold, #c9973a);
-    box-shadow: 0 0 10px rgba(201,151,58,.7);
-    flex-shrink: 0;
+    content: ''; width: 8px; height: 8px; border-radius: 50%;
+    background: #c9973a; box-shadow: 0 0 10px rgba(201,151,58,.7); flex-shrink: 0;
   }
 
-  /* ── HERO STAT GRID ── */
+  /* ── HERO STAT GRID — always 2-col on mobile ── */
   .db-hero-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 2.5rem;
+    gap: .7rem;
+    margin-bottom: 1.6rem;
+    width: 100%;
   }
-  @media (min-width: 900px) {
-    .db-hero-grid {
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.4rem;
-    }
-  }
-
   .db-hero-stat {
-    background: var(--ink-2, #0d1016);
-    border: 1px solid var(--glass-border, rgba(255,255,255,.08));
-    border-radius: 22px;
-    padding: 2rem 1.8rem;
-    position: relative;
-    overflow: hidden;
-    animation: tw-card-in .5s cubic-bezier(.22,1,.36,1) both;
-    cursor: default;
-    transition: border-color .3s, box-shadow .35s, transform .35s;
+    background: rgba(13,16,22,.95);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 18px;
+    padding: 1.3rem 1rem 1.1rem;
+    position: relative; overflow: hidden; min-width: 0;
+    animation: card-rise .5s cubic-bezier(.22,1,.36,1) both;
+    transition: border-color .25s, transform .2s;
+    -webkit-tap-highlight-color: transparent;
   }
   .db-hero-stat::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent 0%, rgba(201,151,58,.5) 50%, transparent 100%);
-    opacity: 0;
-    transition: opacity .3s;
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(201,151,58,.5), transparent);
+    opacity: 0; transition: opacity .25s;
   }
-  .db-card-rail {
-    position: absolute;
-    left: 0; top: 15%; bottom: 15%;
-    width: 4px;
-    border-radius: 0 4px 4px 0;
-    background: linear-gradient(to bottom, var(--gold, #c9973a), var(--gold-light, #e8b454));
-    box-shadow: 0 0 14px rgba(201,151,58,.4);
-    opacity: 0;
-    transition: opacity .3s;
+  .db-hero-stat:active { transform: scale(.96); border-color: rgba(201,151,58,.3); }
+  .db-hero-stat:active::before { opacity: 1; }
+  .db-hero-stat:active .db-hero-rail { opacity: 1; }
+
+  .db-hero-rail {
+    position: absolute; left: 0; top: 20%; bottom: 20%;
+    width: 3px; border-radius: 0 3px 3px 0; opacity: 0; transition: opacity .25s;
   }
-  @media (min-width: 900px) {
-    .db-hero-stat:hover {
-      border-color: rgba(201,151,58,.4);
-      box-shadow: 0 24px 70px rgba(0,0,0,.55), 0 0 50px rgba(201,151,58,.09);
-      transform: translateY(-6px) scale(1.018);
-    }
-    .db-hero-stat:hover::before { opacity: 1; }
-    .db-hero-stat:hover .db-card-rail { opacity: 1; }
-    .db-hero-stat::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 55%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.028), transparent);
-      transition: left .6s ease;
-      pointer-events: none;
-    }
-    .db-hero-stat:hover::after { left: 160%; }
-  }
-  .db-hero-stat-ghost {
-    position: absolute;
-    bottom: -14px; right: 8px;
+  .db-hero-ghost {
+    position: absolute; bottom: -10px; right: 2px;
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(5rem, 8vw, 7.5rem);
-    color: rgba(201,151,58,.04);
-    pointer-events: none;
-    line-height: 1;
-    user-select: none;
-    transition: color .3s, transform .3s;
-  }
-  @media (min-width: 900px) {
-    .db-hero-stat:hover .db-hero-stat-ghost {
-      color: rgba(201,151,58,.09);
-      transform: scale(1.06);
-    }
+    font-size: clamp(3.5rem, 12vw, 6rem);
+    opacity: .04; line-height: 1;
+    pointer-events: none; user-select: none;
   }
   .db-hero-stat-label {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.62rem, 1vw, .78rem);
-    font-weight: 700;
-    letter-spacing: .28em;
-    text-transform: uppercase;
-    color: var(--text-3, #6b7280);
-    margin-bottom: .7rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.68rem, 2vw, .88rem);
+    letter-spacing: .2em; text-transform: uppercase;
+    color: #6b7280; margin-bottom: .5rem;
   }
   .db-hero-stat-value {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(3rem, 6.5vw, 5rem);
-    line-height: 1;
-    letter-spacing: .06em;
-    animation: tw-counter-up .7s cubic-bezier(.22,1,.36,1) both;
+    font-size: clamp(3rem, 10vw, 5.5rem);
+    line-height: 1; letter-spacing: .05em;
+    animation: fade-num .8s cubic-bezier(.22,1,.36,1) both;
   }
   .db-hero-stat-sub {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.58rem, .9vw, .72rem);
-    color: var(--text-3, #6b7280);
-    margin-top: .45rem;
-    letter-spacing: .1em;
-    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.62rem, 1.6vw, .78rem);
+    color: #4b5563; margin-top: .35rem;
+    letter-spacing: .07em; text-transform: uppercase;
   }
 
-  /* ── KPI GRID ── */
+  /* ── KPI GRID — 2-col mobile, never wraps weirdly ── */
   .db-kpi-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 2.5rem;
+    gap: .65rem;
+    margin-bottom: 1.6rem;
+    width: 100%;
   }
-  @media (min-width: 560px) { .db-kpi-grid { grid-template-columns: repeat(3, 1fr); gap: 1.1rem; } }
-  @media (min-width: 900px) { .db-kpi-grid { grid-template-columns: repeat(4, 1fr); gap: 1.3rem; } }
-  @media (min-width: 1100px) { .db-kpi-grid { grid-template-columns: repeat(6, 1fr); } }
-
   .db-kpi-card {
-    background: var(--ink-3, #161920);
-    border: 1px solid var(--glass-border, rgba(255,255,255,.08));
-    border-radius: 18px;
-    padding: 1.4rem 1.2rem;
-    position: relative;
-    overflow: hidden;
-    animation: tw-card-in .5s cubic-bezier(.22,1,.36,1) both;
-    transition: all .25s cubic-bezier(.22,1,.36,1);
-    cursor: default;
+    background: rgba(22,25,32,.98);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 14px;
+    padding: 1.1rem .9rem;
+    position: relative; overflow: hidden; min-width: 0;
+    animation: card-rise .5s cubic-bezier(.22,1,.36,1) both;
+    transition: border-color .2s, transform .18s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .db-kpi-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(201,151,58,.2), transparent);
-    opacity: 0; transition: opacity .25s;
-  }
-  @media (min-width: 900px) {
-    .db-kpi-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(201,151,58,.3);
-      box-shadow: 0 10px 36px rgba(0,0,0,.4), 0 0 18px rgba(201,151,58,.07);
-    }
-    .db-kpi-card:hover::before { opacity: 1; }
-    .db-kpi-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 55%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.03), transparent);
-      transition: left .5s ease;
-      pointer-events: none;
-    }
-    .db-kpi-card:hover::after { left: 160%; }
-  }
+  .db-kpi-card:active { transform: scale(.96); border-color: rgba(201,151,58,.22); }
+
   .db-kpi-label {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.58rem, .9vw, .72rem);
-    letter-spacing: .22em;
-    text-transform: uppercase;
-    color: var(--text-3, #6b7280);
-    margin-bottom: .55rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.65rem, 1.9vw, .82rem);
+    letter-spacing: .18em; text-transform: uppercase;
+    color: #6b7280; margin-bottom: .4rem;
   }
   .db-kpi-value {
-    font-family: 'DM Sans', sans-serif;
-    font-size: clamp(1.05rem, 1.8vw, 1.4rem);
-    font-weight: 700;
-    line-height: 1.3;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(1.4rem, 4.5vw, 2.1rem);
+    font-weight: 700; line-height: 1.2;
+    word-break: break-word;
   }
   .db-kpi-unit {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.52rem, .8vw, .65rem);
-    color: var(--text-3, #6b7280);
-    margin-top: .3rem;
-    letter-spacing: .08em;
-    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.58rem, 1.5vw, .7rem);
+    color: #4b5563; margin-top: .25rem;
+    letter-spacing: .07em; text-transform: uppercase;
   }
 
-  .c-gold  { color: var(--gold-light,  #e8b454); }
-  .c-green { color: var(--sig-green,   #3db87a); }
-  .c-red   { color: var(--sig-red,     #e05252); }
-  .c-amber { color: var(--sig-amber,   #d4883a); }
-
-  /* ── TWO-COL ── */
-  .db-cols {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.4rem;
-    margin-bottom: 2.5rem;
-  }
-  @media (min-width: 700px) { .db-cols { grid-template-columns: 1fr 1fr; } }
+  /* Colors */
+  .c-gold  { color: #e8b454; }
+  .c-green { color: #3db87a; }
+  .c-red   { color: #e05252; }
+  .c-amber { color: #d4883a; }
+  .c-muted { color: #9ca3af; }
 
   /* ── PANEL ── */
+  .db-cols {
+    display: grid; grid-template-columns: 1fr;
+    gap: .9rem; margin-bottom: 1.6rem; width: 100%;
+  }
   .db-panel {
-    background: var(--ink-2, #0d1016);
-    border: 1px solid var(--glass-border, rgba(255,255,255,.08));
-    border-radius: 24px;
-    padding: 2rem;
-    position: relative;
-    overflow: hidden;
-    animation: tw-card-in .5s cubic-bezier(.22,1,.36,1) both;
-    transition: border-color .3s, box-shadow .3s;
+    background: rgba(13,16,22,.95);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 20px; padding: 1.4rem 1rem;
+    position: relative; overflow: hidden; width: 100%; min-width: 0;
+    animation: card-rise .5s cubic-bezier(.22,1,.36,1) both;
   }
   .db-panel::before {
-    content: '';
-    position: absolute;
+    content: ''; position: absolute;
     top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent 0%, var(--gold, #c9973a) 40%, var(--gold-light, #e8b454) 60%, transparent 100%);
-    box-shadow: 0 0 16px rgba(201,151,58,.25);
+    background: linear-gradient(90deg, transparent 0%, #c9973a 40%, #e8b454 60%, transparent 100%);
+    box-shadow: 0 0 12px rgba(201,151,58,.25);
   }
-  .db-scan-line {
-    position: absolute;
-    left: 0; right: 0; top: 0;
-    height: 1px;
+  .db-scan {
+    position: absolute; left: 0; right: 0; top: 0; height: 1px;
     background: linear-gradient(90deg, transparent, rgba(201,151,58,.25), transparent);
-    pointer-events: none;
-    z-index: 10;
-  }
-  @media (min-width: 900px) {
-    .db-scan-line { animation: tw-scan 4s ease-in-out infinite; }
-    .db-panel:hover {
-      border-color: rgba(201,151,58,.2);
-      box-shadow: 0 20px 60px rgba(0,0,0,.4);
-    }
+    pointer-events: none; z-index: 2;
+    animation: scan-line 6s ease-in-out infinite;
   }
 
   /* ── CATEGORY BARS ── */
   .db-cat-list { display: flex; flex-direction: column; gap: .9rem; }
-  .db-cat-row  { display: flex; align-items: center; gap: .9rem; }
+  .db-cat-row  { display: flex; align-items: center; gap: .8rem; width: 100%; min-width: 0; }
   .db-cat-name {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.6rem, .9vw, .72rem);
-    letter-spacing: .1em;
-    color: var(--text-2, #9ca3af);
-    width: 120px;
-    flex-shrink: 0;
-    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.72rem, 2vw, .95rem);
+    letter-spacing: .06em; color: #9ca3af;
+    width: clamp(90px, 26vw, 160px);
+    flex-shrink: 0; text-transform: uppercase;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .db-cat-bar-bg {
-    flex: 1;
-    height: 10px;
-    background: var(--ink-4, #1f222c);
-    border-radius: 5px;
-    overflow: hidden;
+    flex: 1; height: 12px;
+    background: rgba(31,34,44,1); border-radius: 6px; overflow: hidden;
+    min-width: 0;
   }
   .db-cat-bar-fill {
-    height: 100%;
-    border-radius: 5px;
-    animation: tw-bar-grow .9s cubic-bezier(.22,1,.36,1) both;
+    height: 100%; border-radius: 6px;
+    animation: bar-grow 1s cubic-bezier(.22,1,.36,1) both;
   }
   .db-cat-count {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(1.2rem, 2vw, 1.6rem);
-    color: var(--text-2, #9ca3af);
-    width: 52px;
-    text-align: right;
-    flex-shrink: 0;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    color: #9ca3af;
+    width: clamp(44px, 11vw, 58px); text-align: right; flex-shrink: 0;
   }
 
-  /* ── ZONE GRID ── */
+  /* ── ZONE LIST — always single column bar rows, zero overflow ── */
   .db-zone-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: .7rem;
+    display: flex; flex-direction: column;
+    gap: .75rem; width: 100%;
   }
   .db-zone-item {
-    background: var(--ink-3, #161920);
-    border: 1px solid var(--glass-border, rgba(255,255,255,.08));
-    border-radius: 14px;
-    padding: 1rem 1.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .6rem;
-    animation: tw-card-in .5s cubic-bezier(.22,1,.36,1) both;
-    transition: all .2s cubic-bezier(.22,1,.36,1);
+    background: rgba(22,25,32,.98);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 14px; padding: .9rem 1rem;
+    display: flex; align-items: center; gap: .8rem;
+    animation: card-rise .5s cubic-bezier(.22,1,.36,1) both;
+    transition: border-color .2s, transform .18s;
+    min-width: 0; width: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
-  @media (min-width: 900px) {
-    .db-zone-item:hover {
-      border-color: rgba(201,151,58,.3);
-      background: var(--ink-5, #292d3a);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,.3);
-    }
-  }
+  .db-zone-item:active { border-color: rgba(201,151,58,.28); transform: scale(.98); }
   .db-zone-name {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.58rem, .85vw, .7rem);
-    color: var(--text-2, #9ca3af);
-    letter-spacing: .1em;
-    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.72rem, 2vw, .95rem);
+    color: #9ca3af; letter-spacing: .06em; text-transform: uppercase;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    flex: 1; min-width: 0;
+  }
+  /* zone bar takes remaining space */
+  .db-zone-bar-wrap {
+    width: clamp(60px, 18vw, 140px);
+    flex-shrink: 0;
   }
   .db-zone-count {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(1.5rem, 2.5vw, 2rem);
-    color: var(--gold, #c9973a);
-    line-height: 1;
-    text-shadow: 0 0 14px rgba(201,151,58,.4);
+    font-size: clamp(1.5rem, 4.5vw, 2.2rem);
+    color: #c9973a; line-height: 1; flex-shrink: 0;
+    text-shadow: 0 0 14px rgba(201,151,58,.35);
+    width: clamp(50px, 12vw, 70px); text-align: right;
   }
 
-  /* ── TABLE ── */
-  .db-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .db-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 580px;
-  }
-  .db-table th {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.6rem, .9vw, .72rem);
-    letter-spacing: .22em;
-    text-transform: uppercase;
-    color: var(--text-3, #6b7280);
-    padding: .9rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid var(--ink-4, #1f222c);
-    white-space: nowrap;
-  }
-  .db-table td {
-    padding: 1rem 1rem;
-    border-bottom: 1px solid var(--ink-4, #1f222c);
-    font-family: 'DM Sans', sans-serif;
-    font-size: clamp(.88rem, 1.2vw, 1rem);
-    color: var(--text-2, #9ca3af);
-    vertical-align: middle;
-  }
-  .db-table tr:last-child td { border-bottom: none; }
-  @media (min-width: 900px) {
-    .db-table tbody tr { transition: background .2s; }
-    .db-table tbody tr:hover td {
-      background: var(--ink-3, #161920);
-      color: var(--text-1, #f0eeeb);
-    }
-  }
+  /* ── TRAIN CARDS — replaces table on mobile, no x-scroll ── */
+  .db-train-list { display: flex; flex-direction: column; gap: .8rem; width: 100%; }
 
-  .db-train-no {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.7rem, 1vw, .84rem);
-    color: var(--gold, #c9973a);
-    font-weight: 700;
-    display: inline-block;
-    background: var(--gold-pale, rgba(201,151,58,.1));
-    border: 1px solid rgba(201,151,58,.2);
-    padding: .25rem .65rem;
-    border-radius: 6px;
-    white-space: nowrap;
+  .db-train-card {
+    background: rgba(22,25,32,.98);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 18px; padding: 1.1rem 1rem;
+    position: relative; overflow: hidden; width: 100%; min-width: 0;
+    animation: card-rise .45s cubic-bezier(.22,1,.36,1) both;
+    transition: border-color .2s, transform .18s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .db-train-name {
+  .db-train-card:active { transform: scale(.98); border-color: rgba(201,151,58,.25); }
+  .db-train-card.flagged { border-color: rgba(224,82,82,.18); }
+  .db-train-card.flagged:active { border-color: rgba(224,82,82,.4); }
+
+  /* Card top row: number + name + badge */
+  .db-tc-top {
+    display: flex; align-items: center; gap: .6rem;
+    margin-bottom: .65rem; min-width: 0; flex-wrap: nowrap;
+  }
+  .db-tc-no {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.8rem, 2.4vw, 1rem);
+    font-weight: 700; color: #c9973a;
+    background: rgba(201,151,58,.1);
+    border: 1px solid rgba(201,151,58,.22);
+    padding: .3rem .6rem; border-radius: 8px;
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .db-tc-no.red {
+    color: #e05252; background: rgba(224,82,82,.09);
+    border-color: rgba(224,82,82,.22);
+  }
+  .db-tc-name {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(1.05rem, 1.5vw, 1.3rem);
-    color: var(--text-1, #f0eeeb);
-    letter-spacing: .05em;
-    white-space: nowrap;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-transform: uppercase;
+    font-size: clamp(1.3rem, 4.5vw, 1.7rem);
+    color: #f0eeeb; letter-spacing: .04em;
+    text-transform: uppercase; line-height: 1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    flex: 1; min-width: 0;
   }
-
   .db-cat-badge {
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.54rem, .8vw, .66rem);
-    font-weight: 700;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    padding: .3rem .8rem;
-    border-radius: 8px;
-    white-space: nowrap;
-    animation: tw-badge-pop .4s cubic-bezier(.22,1,.36,1) both;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.58rem, 1.6vw, .72rem);
+    font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+    padding: .28rem .65rem; border-radius: 8px; white-space: nowrap; flex-shrink: 0;
+    animation: badge-pop .4s cubic-bezier(.22,1,.36,1) both;
     border: 1px solid transparent;
   }
-  .badge-gold  { background: rgba(201,151,58,.12); color: #e8b454; border-color: rgba(201,151,58,.25); }
+  .badge-gold  { background: rgba(201,151,58,.12); color: #e8b454; border-color: rgba(201,151,58,.28); }
   .badge-green { background: rgba(61,184,122,.09);  color: #3db87a; border-color: rgba(61,184,122,.22); }
   .badge-amber { background: rgba(212,136,58,.09);  color: #d4883a; border-color: rgba(212,136,58,.22); }
-  .badge-muted { background: rgba(255,255,255,.04); color: #9ca3af; border-color: rgba(255,255,255,.08); }
+  .badge-muted { background: rgba(255,255,255,.04); color: #9ca3af; border-color: rgba(255,255,255,.09); }
 
-  .db-score-bar { display: flex; align-items: center; gap: .6rem; }
-  .db-score-bg  { width: 72px; height: 6px; background: var(--ink-4, #1f222c); border-radius: 3px; overflow: hidden; }
-  .db-score-fill { height: 100%; border-radius: 3px; animation: tw-bar-grow .8s cubic-bezier(.22,1,.36,1) both; }
-  .db-score-num { font-family: 'Space Mono', monospace; font-size: clamp(.64rem, .9vw, .76rem); font-weight: 700; }
+  /* Card route row */
+  .db-tc-route {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.7rem, 2vw, .88rem);
+    color: #6b7280; letter-spacing: .05em;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    margin-bottom: .75rem; width: 100%;
+  }
+  .db-tc-route span { color: #4b5563; }
+
+  /* Card stats row: 3 chips */
+  .db-tc-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: .5rem;
+  }
+  .db-tc-stat {
+    background: rgba(13,16,22,.8);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 10px; padding: .6rem .65rem;
+    min-width: 0;
+  }
+  .db-tc-stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.58rem, 1.5vw, .7rem);
+    color: #4b5563; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .22rem;
+  }
+  .db-tc-stat-val {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(1.05rem, 3.2vw, 1.4rem);
+    font-weight: 700; line-height: 1.1;
+  }
+
+  /* Score bar inside card */
+  .db-tc-score { display: flex; align-items: center; gap: .55rem; margin-top: .65rem; }
+  .db-tc-score-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.6rem, 1.5vw, .72rem);
+    color: #4b5563; letter-spacing: .09em; text-transform: uppercase; flex-shrink: 0;
+  }
+  .db-score-bg { flex: 1; height: 7px; background: rgba(31,34,44,1); border-radius: 4px; overflow: hidden; min-width: 0; }
+  .db-score-fill { height: 100%; border-radius: 4px; animation: bar-grow .9s cubic-bezier(.22,1,.36,1) both; }
+  .db-score-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.72rem, 2vw, .88rem); font-weight: 700; flex-shrink: 0;
+  }
 
   /* ── LOADER ── */
   .db-loader {
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    padding: 7rem 2rem; gap: 2.5rem;
+    padding: 7rem 2rem; gap: 2rem;
   }
   .db-spinner-wrap { position: relative; width: 72px; height: 72px; }
   .db-spinner-outer {
     width: 72px; height: 72px;
-    border: 2px solid var(--glass-border, rgba(255,255,255,.08));
-    border-top-color: var(--gold, #c9973a);
-    border-right-color: var(--gold-light, #e8b454);
-    border-radius: 50%;
-    animation: tw-spin .75s linear infinite;
+    border: 2px solid rgba(255,255,255,.07);
+    border-top-color: #c9973a; border-right-color: #e8b454;
+    border-radius: 50%; animation: spin-cw .8s linear infinite;
   }
   .db-spinner-inner {
-    position: absolute;
-    top: 11px; left: 11px; right: 11px; bottom: 11px;
-    border: 1px solid rgba(201,151,58,.2);
-    border-bottom-color: var(--gold, #c9973a);
-    border-radius: 50%;
-    animation: tw-spin-rev .5s linear infinite;
+    position: absolute; top: 11px; left: 11px; right: 11px; bottom: 11px;
+    border: 1px solid rgba(201,151,58,.18); border-bottom-color: #c9973a;
+    border-radius: 50%; animation: spin-ccw .55s linear infinite;
   }
-  .db-spinner-dot {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--gold, #c9973a);
-    box-shadow: 0 0 16px var(--gold, #c9973a);
+  .db-spinner-core {
+    position: absolute; top: 50%; left: 50%;
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #c9973a; box-shadow: 0 0 16px #c9973a;
     transform: translate(-50%,-50%);
   }
   .db-loader-text {
-    font-family: 'Space Mono', monospace;
-    font-size: .78rem;
-    color: var(--text-3, #6b7280);
-    letter-spacing: .35em;
-    text-transform: uppercase;
-    animation: tw-float 1.5s ease-in-out infinite;
+    font-family: 'JetBrains Mono', monospace; font-size: .82rem;
+    color: #6b7280; letter-spacing: .3em; text-transform: uppercase;
+    animation: float-y 1.6s ease-in-out infinite;
   }
 
   .db-error {
-    background: rgba(224,82,82,.06);
-    border: 1px solid rgba(224,82,82,.25);
-    border-radius: 16px;
-    padding: 2.5rem;
-    text-align: center;
-    font-family: 'Space Mono', monospace;
-    font-size: .85rem;
-    letter-spacing: .1em;
-    color: #e05252;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: .75rem;
+    background: rgba(224,82,82,.07); border: 1px solid rgba(224,82,82,.28);
+    border-radius: 16px; padding: 2.5rem 1.5rem;
+    text-align: center; font-family: 'JetBrains Mono', monospace;
+    font-size: .9rem; color: #e05252; letter-spacing: .06em;
+    width: 100%;
   }
 
+  /* ── PANEL VARIANTS ── */
+  .db-panel.danger { border-color: rgba(224,82,82,.18); }
+  .db-panel.danger::before { background: linear-gradient(90deg, transparent, #e05252 50%, transparent); }
+
+  /* ── FOOTER ── */
   .db-footer {
-    margin-top: 5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: .75rem;
-    font-family: 'Space Mono', monospace;
-    font-size: clamp(.55rem, .8vw, .68rem);
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    color: var(--text-3, #6b7280);
-    border-top: 1px solid var(--ink-4, #1f222c);
-    padding-top: 1.75rem;
+    margin-top: 3.5rem; padding-top: 1.2rem;
+    border-top: 1px solid rgba(31,34,44,1);
+    display: flex; flex-direction: column; gap: .4rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.55rem, 1.4vw, .68rem);
+    color: #4b5563; letter-spacing: .14em; text-transform: uppercase;
   }
-  .db-footer-accent { color: var(--gold, #c9973a); opacity: .5; }
+  .db-footer-accent { color: rgba(201,151,58,.55); }
 
-  /* ── MOBILE ── */
-  @media (max-width: 559px) {
-    .db-page { padding: 1.4rem 1rem 5rem; }
-    .db-title { font-size: clamp(3.2rem, 14vw, 5rem); }
-    .db-panel { padding: 1.4rem 1.1rem; border-radius: 18px; }
-    .db-hero-stat { padding: 1.4rem 1.1rem; border-radius: 16px; }
-    .db-kpi-grid { gap: .7rem; }
-    .db-kpi-card { padding: 1.1rem .9rem; border-radius: 14px; }
-    .db-hero-stat-value { font-size: 2.8rem; }
-    .db-ticker { gap: 1.1rem; }
-    .db-ticker-val { font-size: 2rem; }
-    .db-status-bar { padding: .85rem 1.1rem; gap: .9rem; font-size: .62rem; }
-    .db-zone-grid { grid-template-columns: 1fr; }
-    .db-cat-name { width: 90px; }
-    .db-table th, .db-table td { padding: .75rem .65rem; }
-    .db-score-bg { width: 50px; }
+  /* ════════════════════════════════════════════
+     RESPONSIVE — tablet 600px+ and desktop 900px+
+     Tables come back on desktop where there's room.
+     Zone list stays single-column everywhere.
+  ════════════════════════════════════════════ */
+
+  /* Phablet 480px+ — status bar goes 4-col */
+  @media (min-width: 480px) {
+    .db-status-bar { grid-template-columns: repeat(4, auto); justify-content: start; }
   }
 
-  /* ── TABLET ── */
-  @media (min-width: 560px) and (max-width: 899px) {
-    .db-hero-stat-value { font-size: clamp(2.6rem, 6vw, 3.5rem); }
-    .db-zone-grid { grid-template-columns: repeat(3, 1fr); }
+  /* Tablet 600px+ */
+  @media (min-width: 600px) {
+    .db-page { padding: 1.8rem 1.6rem 6rem; }
+    .db-ticker { grid-template-columns: repeat(4, 1fr); }
+    .db-kpi-grid { grid-template-columns: repeat(3, 1fr); gap: .9rem; }
+    .db-tc-stats { grid-template-columns: repeat(4, 1fr); }
+    .db-cat-name { font-size: clamp(.8rem, 2vw, 1rem); }
+    .db-zone-name { font-size: clamp(.8rem, 2vw, 1rem); }
   }
+
+  /* Tablet landscape 768px+ */
+  @media (min-width: 768px) {
+    .db-page { padding: 2rem 2rem 6rem; }
+    .db-hero-grid { gap: 1.1rem; }
+    .db-hero-stat { padding: 1.9rem 1.5rem 1.6rem; }
+    .db-hero-stat-value { font-size: clamp(3.2rem, 7vw, 5rem); }
+    .db-kpi-grid { grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    /* cols stay single column — zones panel needs full width */
+    .db-cols { grid-template-columns: 1fr; gap: 1.2rem; }
+    .db-panel { padding: 1.9rem 1.5rem; }
+    .db-cat-count { font-size: clamp(1.5rem, 3.5vw, 2rem); }
+    .db-zone-count { font-size: clamp(1.6rem, 4vw, 2.2rem); }
+  }
+
+  /* Desktop 900px+ — show tables, hide train cards, 2-col panels */
+  @media (min-width: 900px) {
+    .db-page { padding: 2.5rem 2.2rem 7rem; max-width: 1400px; margin: 0 auto; }
+    .db-kpi-grid { grid-template-columns: repeat(6, 1fr); gap: 1.1rem; }
+
+    /* Side-by-side panels only at desktop — both have enough room */
+    .db-cols { grid-template-columns: 1fr 1fr; gap: 1.4rem; }
+
+    /* Show table, hide cards — explicit block overrides the default none */
+    .db-train-list { display: none !important; }
+    .db-table-wrap { display: block !important; }
+
+    /* Hover states */
+    .db-hero-stat:hover {
+      border-color: rgba(201,151,58,.32);
+      transform: translateY(-5px) scale(1.018);
+      box-shadow: 0 20px 60px rgba(0,0,0,.45), 0 0 40px rgba(201,151,58,.07);
+    }
+    .db-hero-stat:hover::before { opacity: 1; }
+    .db-hero-stat:hover .db-hero-rail { opacity: 1; }
+    .db-kpi-card:hover { border-color: rgba(201,151,58,.22); transform: translateY(-3px); }
+    .db-zone-item:hover { border-color: rgba(201,151,58,.28); transform: translateY(-2px); background: rgba(31,34,44,.7); }
+    .db-train-card:hover { border-color: rgba(201,151,58,.22); transform: translateY(-2px); }
+    .db-table tbody tr:hover td { background: rgba(22,25,32,.9); color: #f0eeeb; }
+
+    /* Bigger zone font on desktop */
+    .db-zone-name { font-size: 1rem; letter-spacing: .08em; }
+    .db-zone-count { font-size: 2.4rem; }
+    .db-cat-name { font-size: 1rem; }
+    .db-cat-count { font-size: 2rem; }
+    .db-cat-bar-bg { height: 14px; }
+  }
+
+  /* Wide desktop 1100px+ — bigger fonts for 3-4m visibility */
+  @media (min-width: 1100px) {
+    .db-zone-name { font-size: 1.05rem; }
+    .db-zone-count { font-size: 2.6rem; }
+    .db-cat-name { font-size: 1.05rem; }
+    .db-cat-count { font-size: 2.2rem; }
+    .db-zone-item { padding: 1.1rem 1.2rem; }
+    .db-cat-row { gap: 1rem; }
+  }
+
+  /* Large desktop 1200px+ */
+  @media (min-width: 1200px) {
+    .db-hero-grid { gap: 1.4rem; }
+    .db-panel { padding: 2.2rem 1.8rem; }
+    .db-kpi-value { font-size: 2rem; }
+    .db-hero-stat-value { font-size: clamp(3.5rem, 5.5vw, 5.5rem); }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+
+  /* ── TABLE — hidden on mobile, shown on desktop 900px+ ── */
+  .db-table-wrap { display: none; border-radius: 12px; overflow: hidden; }
+  .db-table { width: 100%; border-collapse: collapse; }
+  .db-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.7rem, 1vw, .85rem); letter-spacing: .16em; text-transform: uppercase;
+    color: #6b7280; padding: 1rem 1.1rem; text-align: left;
+    border-bottom: 1px solid rgba(31,34,44,1); white-space: nowrap;
+    background: rgba(13,16,22,.8);
+  }
+  .db-table td {
+    padding: 1.05rem 1.1rem; border-bottom: 1px solid rgba(31,34,44,.8);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(1rem, 1.4vw, 1.2rem); font-weight: 500;
+    color: #9ca3af; vertical-align: middle;
+  }
+  .db-table tr:last-child td { border-bottom: none; }
+  .db-table tbody tr { transition: background .18s; cursor: pointer; }
+
+  .db-train-no {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.78rem, 1vw, .92rem); font-weight: 700; color: #c9973a;
+    display: inline-block; background: rgba(201,151,58,.1);
+    border: 1px solid rgba(201,151,58,.2); padding: .28rem .7rem;
+    border-radius: 7px; white-space: nowrap;
+  }
+  .db-train-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.1rem, 1.5vw, 1.45rem); color: #f0eeeb;
+    letter-spacing: .04em; white-space: nowrap;
+    max-width: 200px; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase;
+  }
+  .db-score-bar-d { display: flex; align-items: center; gap: .5rem; }
+  .db-score-bg-d  { width: 72px; height: 7px; background: rgba(31,34,44,1); border-radius: 4px; overflow: hidden; }
+  .db-score-fill-d { height: 100%; border-radius: 4px; animation: bar-grow .9s cubic-bezier(.22,1,.36,1) both; }
+  .db-score-num-d {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.7rem, .95vw, .85rem); font-weight: 700;
+  }
+
+  /* ── TRAIN DETAIL MODAL ── */
+  @keyframes modal-in  { from{opacity:0;transform:translateY(32px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+  @keyframes overlay-in { from{opacity:0} to{opacity:1} }
+
+  .db-modal-overlay {
+    position: fixed; inset: 0; z-index: 9000;
+    background: rgba(7,8,11,.82);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+    animation: overlay-in .2s ease both;
+  }
+  .db-modal {
+    background: #0d1016;
+    border: 1px solid rgba(201,151,58,.25);
+    border-radius: 24px;
+    width: 100%; max-width: 680px;
+    max-height: 90vh; overflow-y: auto;
+    position: relative;
+    animation: modal-in .3s cubic-bezier(.22,1,.36,1) both;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(201,151,58,.3) transparent;
+  }
+  .db-modal::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, #c9973a 40%, #e8b454 60%, transparent);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 0 20px rgba(201,151,58,.3);
+  }
+  .db-modal-head {
+    padding: 1.8rem 1.8rem 1.2rem;
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    position: sticky; top: 0;
+    background: #0d1016; z-index: 2; border-radius: 24px 24px 0 0;
+  }
+  .db-modal-title-wrap { min-width: 0; }
+  .db-modal-no {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .82rem; font-weight: 700; color: #c9973a;
+    background: rgba(201,151,58,.1); border: 1px solid rgba(201,151,58,.22);
+    padding: .3rem .7rem; border-radius: 8px;
+    display: inline-block; margin-bottom: .6rem;
+  }
+  .db-modal-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    color: #f0eeeb; letter-spacing: .05em;
+    text-transform: uppercase; line-height: 1;
+  }
+  .db-modal-close {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+    color: #9ca3af; font-size: 1.3rem; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+    transition: background .2s, color .2s, border-color .2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .db-modal-close:hover { background: rgba(224,82,82,.12); color: #e05252; border-color: rgba(224,82,82,.25); }
+  .db-modal-body { padding: 1.4rem 1.8rem 2rem; display: flex; flex-direction: column; gap: 1.2rem; }
+
+  /* Route banner */
+  .db-modal-route {
+    background: rgba(22,25,32,.95); border: 1px solid rgba(255,255,255,.07);
+    border-radius: 16px; padding: 1.1rem 1.2rem;
+    display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
+  }
+  .db-modal-route-city {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.2rem, 3vw, 1.7rem);
+    color: #f0eeeb; letter-spacing: .04em; text-transform: uppercase;
+  }
+  .db-modal-route-arrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem; color: #c9973a; flex-shrink: 0;
+  }
+
+  /* Stat chips grid */
+  .db-modal-stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: .7rem;
+  }
+  @media (min-width: 480px) { .db-modal-stats { grid-template-columns: repeat(3, 1fr); } }
+
+  .db-modal-stat {
+    background: rgba(22,25,32,.95); border: 1px solid rgba(255,255,255,.07);
+    border-radius: 14px; padding: 1rem;
+  }
+  .db-modal-stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.58rem, 1.5vw, .7rem);
+    letter-spacing: .18em; text-transform: uppercase;
+    color: #4b5563; margin-bottom: .4rem;
+  }
+  .db-modal-stat-val {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(1.2rem, 3.5vw, 1.65rem);
+    font-weight: 700; line-height: 1.1; color: #f0eeeb;
+  }
+  .db-modal-stat-val.gold  { color: #e8b454; }
+  .db-modal-stat-val.green { color: #3db87a; }
+  .db-modal-stat-val.red   { color: #e05252; }
+  .db-modal-stat-val.amber { color: #d4883a; }
+
+  /* Score bar in modal */
+  .db-modal-score-row { display: flex; align-items: center; gap: .6rem; }
+  .db-modal-score-bg { flex: 1; height: 8px; background: rgba(31,34,44,1); border-radius: 4px; overflow: hidden; }
+  .db-modal-score-fill { height: 100%; border-radius: 4px; animation: bar-grow 1s cubic-bezier(.22,1,.36,1) both; }
+
+  /* Section divider in modal */
+  .db-modal-section {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(.62rem, 1.6vw, .75rem);
+    letter-spacing: .3em; text-transform: uppercase;
+    color: #6b7280; display: flex; align-items: center; gap: .6rem;
+    margin-top: .2rem;
+  }
+  .db-modal-section::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: #c9973a; box-shadow: 0 0 8px rgba(201,151,58,.7); flex-shrink: 0;
+  }
+  .db-modal-section::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.06); }
+
+  /* Modal loader */
+  .db-modal-loading {
+    display: flex; align-items: center; justify-content: center;
+    padding: 4rem 2rem; gap: 1.2rem; flex-direction: column;
+  }
+  .db-modal-err {
+    padding: 2.5rem; text-align: center;
+    font-family: 'JetBrains Mono', monospace; font-size: .85rem;
+    color: #e05252; letter-spacing: .06em;
+  }
+
+  /* Clickable rows/cards show pointer */
+  .db-train-card { cursor: pointer; }
 `
 
 /* ── Helpers ── */
@@ -739,6 +846,151 @@ function scoreColor(v, max = 100) {
   if (p > .3)  return "#d4883a"
   return "#e05252"
 }
+function railColor(color) {
+  if (color === "c-gold")  return "linear-gradient(to bottom, #c9973a, #e8b454)"
+  if (color === "c-green") return "linear-gradient(to bottom, #3db87a, #56e09a)"
+  if (color === "c-amber") return "linear-gradient(to bottom, #d4883a, #f0a050)"
+  return "linear-gradient(to bottom, #e05252, #f07070)"
+}
+
+/* ── Train Detail Modal ── */
+const TrainModal = ({ trainNo, onClose }) => {
+  const [train, setTrain] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error,   setError]   = useState(null)
+
+  useEffect(() => {
+    if (!trainNo) return
+    setLoading(true); setError(null); setTrain(null)
+    fetch(`${API_URI}/api/train/number?number=${trainNo}`)
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then(d  => { setTrain(d); setLoading(false) })
+      .catch(e => { setError(e.message); setLoading(false) })
+  }, [trainNo])
+
+  // Close on backdrop click
+  const handleOverlay = (e) => { if (e.target === e.currentTarget) onClose() }
+
+  // Prevent body scroll while open
+  useEffect(() => {
+    document.body.style.overflow = "hidden"
+    return () => { document.body.style.overflow = "" }
+  }, [])
+
+  const badgeClass = catBadgeClass(train?.TrainCategory || "")
+
+  const stats = train ? [
+    { label: "Train No",     val: train.TrainNo,                              cls: "gold"  },
+    { label: "Category",     val: train.TrainCategory,                        cls: ""      },
+    { label: "Zone",         val: train.RailwayZone,                          cls: ""      },
+    { label: "Speed",        val: train.AverageSpeed_kmph != null ? `${fmt(train.AverageSpeed_kmph, 1)} km/h` : "—", cls: "gold"  },
+    { label: "Distance",     val: train.Distance_km != null ? `${fmt(train.Distance_km)} km` : "—",                  cls: ""      },
+    { label: "Punctuality",  val: train.PunctualityScore != null ? `${fmt(train.PunctualityScore, 1)} / 100` : "—",  cls: train?.PunctualityScore > 75 ? "green" : train?.PunctualityScore > 50 ? "gold" : "amber" },
+    { label: "Occupancy",    val: train.OccupancyRate   != null ? `${fmt(train.OccupancyRate, 1)}%`   : "—",         cls: train?.OccupancyRate > 85 ? "amber" : "green" },
+    { label: "Delay Risk",   val: train.DelayProbability != null ? `${fmt(train.DelayProbability, 1)}%` : "—",       cls: train?.DelayProbability > 50 ? "red" : "amber" },
+    { label: "Route Type",   val: train.RouteType,                            cls: ""      },
+    { label: "Stops",        val: train.NumberOfStops != null ? fmt(train.NumberOfStops) : "—", cls: "" },
+    { label: "Fare (₹)",     val: train.BaseFare != null ? `₹${fmt(train.BaseFare, 0)}` : "—", cls: "green" },
+    { label: "Electrified",  val: train.Electrified != null ? (train.Electrified ? "Yes" : "No") : "—", cls: train?.Electrified ? "green" : "" },
+  ].filter(s => s.val && s.val !== "—" && s.val !== "undefined" && s.val !== "null") : []
+
+  const pct = train?.PunctualityScore ?? 0
+  const delayPct = train?.DelayProbability ?? 0
+
+  return (
+    <div className="db-modal-overlay" onClick={handleOverlay}>
+      <div className="db-modal">
+        {/* Header */}
+        <div className="db-modal-head">
+          <div className="db-modal-title-wrap">
+            {train && <div className="db-modal-no">{train.TrainNo}</div>}
+            <div className="db-modal-name">
+              {loading ? "Loading…" : error ? "Error" : train?.TrainName || "Train Details"}
+            </div>
+            {train && (
+              <span className={`db-cat-badge ${badgeClass}`} style={{ marginTop: ".5rem", display: "inline-block" }}>
+                {train.TrainCategory}
+              </span>
+            )}
+          </div>
+          <button className="db-modal-close" onClick={onClose} aria-label="Close">✕</button>
+        </div>
+
+        {/* Body */}
+        <div className="db-modal-body">
+          {loading && (
+            <div className="db-modal-loading">
+              <div className="db-spinner-wrap" style={{ width: 56, height: 56 }}>
+                <div className="db-spinner-outer" style={{ width: 56, height: 56 }} />
+                <div className="db-spinner-inner" style={{ top: 9, left: 9, right: 9, bottom: 9 }} />
+                <div className="db-spinner-core" />
+              </div>
+              <div className="db-loader-text" style={{ fontSize: ".75rem" }}>Fetching Train Data…</div>
+            </div>
+          )}
+
+          {error && <div className="db-modal-err">⚠ {error}</div>}
+
+          {train && !loading && (
+            <>
+              {/* Route */}
+              {train.StartingPoint && train.FinalDestination && (
+                <>
+                  <div className="db-modal-section">Route</div>
+                  <div className="db-modal-route">
+                    <div className="db-modal-route-city">{train.StartingPoint}</div>
+                    <div className="db-modal-route-arrow">→</div>
+                    <div className="db-modal-route-city">{train.FinalDestination}</div>
+                  </div>
+                </>
+              )}
+
+              {/* Stats */}
+              <div className="db-modal-section">Details</div>
+              <div className="db-modal-stats">
+                {stats.map(s => (
+                  <div key={s.label} className="db-modal-stat">
+                    <div className="db-modal-stat-label">{s.label}</div>
+                    <div className={`db-modal-stat-val ${s.cls}`}>{s.val}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Score bars */}
+              {pct > 0 && (
+                <>
+                  <div className="db-modal-section">Performance</div>
+                  <div style={{ background:"rgba(22,25,32,.95)", border:"1px solid rgba(255,255,255,.07)", borderRadius:16, padding:"1.2rem" }}>
+                    <div style={{ marginBottom:".9rem" }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:".4rem" }}>
+                        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".7rem", letterSpacing:".18em", textTransform:"uppercase", color:"#6b7280" }}>Punctuality</span>
+                        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".8rem", fontWeight:700, color: scoreColor(pct, 100) }}>{fmt(pct, 1)}</span>
+                      </div>
+                      <div className="db-modal-score-bg">
+                        <div className="db-modal-score-fill" style={{ width:`${pct}%`, background: scoreColor(pct, 100) }} />
+                      </div>
+                    </div>
+                    {delayPct > 0 && (
+                      <div>
+                        <div style={{ display:"flex", justifyContent:"space-between", marginBottom:".4rem" }}>
+                          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".7rem", letterSpacing:".18em", textTransform:"uppercase", color:"#6b7280" }}>Delay Risk</span>
+                          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:".8rem", fontWeight:700, color:"#e05252" }}>{fmt(delayPct, 1)}%</span>
+                        </div>
+                        <div className="db-modal-score-bg">
+                          <div className="db-modal-score-fill" style={{ width:`${delayPct}%`, background:"#e05252" }} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 /* ── Sub-components ── */
 const Loader = () => (
@@ -746,7 +998,7 @@ const Loader = () => (
     <div className="db-spinner-wrap">
       <div className="db-spinner-outer" />
       <div className="db-spinner-inner" />
-      <div className="db-spinner-dot"   />
+      <div className="db-spinner-core"  />
     </div>
     <div className="db-loader-text">Loading Intelligence…</div>
   </div>
@@ -755,8 +1007,6 @@ const Loader = () => (
 const ErrorPanel = ({ msg }) => (
   <div className="db-error">⚠ &nbsp;{msg || "Failed to fetch dashboard data."}</div>
 )
-
-const RailDivider = () => <div className="db-rail-divider" />
 
 const SectionLabel = ({ children }) => (
   <div className="db-section-label">{children}</div>
@@ -768,6 +1018,7 @@ const DashBoard = () => {
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState(null)
   const [tick,    setTick]    = useState(new Date())
+  const [selectedTrain, setSelectedTrain] = useState(null)  // trainNo for modal
 
   useEffect(() => {
     fetch(`${API_URI}/api/dashBoard`)
@@ -798,254 +1049,337 @@ const DashBoard = () => {
   return (
     <Navbar>
       <style>{DB_CSS}</style>
-      <div className="db-page">
+      {selectedTrain && (
+        <TrainModal trainNo={selectedTrain} onClose={() => setSelectedTrain(null)} />
+      )}
+      <div className="db-root">
+        <div className="db-page">
 
-        {/* ── HEADER ── */}
-        <div className="db-header">
-          <div className="db-eyebrow">Railway Intelligence System</div>
-          <h1 className="db-title">
-            Network{" "}
-            <span className="db-accent" data-text="Overview">Overview</span>
-          </h1>
-          <p className="db-subtitle">Live Operations Dashboard — Indian Railway Analytics</p>
+          {/* ── HEADER ── */}
+          <div className="db-header">
+            <div className="db-eyebrow">Railway Intelligence System</div>
+            <h1 className="db-title">
+              <span className="t1">Network</span>
+              <span className="t2">Overview</span>
+            </h1>
+            <p className="db-subtitle">Live Operations · Indian Railway Analytics</p>
 
-          {data && (
-            <div className="db-ticker">
-              <div className="db-ticker-item">
-                <span className="db-ticker-val">{fmt(data.Total_Trains)}</span>
-                <span className="db-ticker-label">Trains</span>
+            {/* TICKER — 4 key numbers large */}
+            {data && (
+              <div className="db-ticker">
+                {[
+                  { val: fmt(data.Total_Trains),         label: "Trains"   },
+                  { val: fmt(data.Unique_Railway_Zones), label: "Zones"    },
+                  { val: fmt(totalStations),             label: "Stations" },
+                  { val: fmt(data.Unique_Routes),        label: "Routes"   },
+                ].map((t, i) => (
+                  <div key={t.label} className="db-ticker-card" style={{ animationDelay: `${i * .08}s` }}>
+                    <span className="db-ticker-val">{t.val}</span>
+                    <div className="db-ticker-label">{t.label}</div>
+                  </div>
+                ))}
               </div>
-              <div className="db-ticker-divider" />
-              <div className="db-ticker-item">
-                <span className="db-ticker-val">{fmt(data.Unique_Railway_Zones)}</span>
-                <span className="db-ticker-label">Zones</span>
-              </div>
-              <div className="db-ticker-divider" />
-              <div className="db-ticker-item">
-                <span className="db-ticker-val">{fmt(totalStations)}</span>
-                <span className="db-ticker-label">Stations</span>
-              </div>
-              <div className="db-ticker-divider" />
-              <div className="db-ticker-item">
-                <span className="db-ticker-val">{fmt(data.Unique_Routes)}</span>
-                <span className="db-ticker-label">Routes</span>
-              </div>
-            </div>
-          )}
+            )}
 
-          <div className="db-status-bar" style={{ marginTop: "1.75rem" }}>
-            <div className="db-status-item">
-              <div className="db-status-dot green" />
-              <span>SYSTEMS NOMINAL</span>
-            </div>
-            <div className="db-status-item">
-              <div className="db-status-dot gold" />
-              <span>DATA FEED <span className="db-status-val">LIVE</span></span>
-            </div>
-            <div className="db-status-item">
-              <div className="db-status-dot amber" />
-              <span>IST <span className="db-status-val">{timeStr}</span></span>
-            </div>
-            <div className="db-status-item" style={{ marginLeft: "auto" }}>
-              <span>{dateStr}</span>
+            {/* STATUS BAR */}
+            <div className="db-status-bar">
+              <div className="db-status-item">
+                <div className="db-status-dot dot-green" />
+                <span>Systems <b>Nominal</b></span>
+              </div>
+              <div className="db-status-item">
+                <div className="db-status-dot dot-gold" />
+                <span>Feed <b>Live</b></span>
+              </div>
+              <div className="db-status-item">
+                <div className="db-status-dot dot-amber" />
+                <span>IST <b>{timeStr}</b></span>
+              </div>
+              <div className="db-status-item" style={{ marginLeft: "auto" }}>
+                <span>{dateStr}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {loading && <Loader />}
-        {!loading && error && <ErrorPanel msg={error} />}
+          {/* ── LOADING / ERROR ── */}
+          {loading && <Loader />}
+          {!loading && error && <ErrorPanel msg={error} />}
 
-        {!loading && !error && data && (
-          <>
-            {/* ── HERO STATS ── */}
-            <SectionLabel>Core Network Metrics</SectionLabel>
-            <div className="db-hero-grid">
-              {[
-                { label: "Total Trains",   value: fmt(data.Total_Trains),           color: "c-gold",  ghost: "TR", sub: "across network",      d: 0    },
-                { label: "Railway Zones",  value: fmt(data.Unique_Railway_Zones),   color: "c-green", ghost: "ZN", sub: "operational zones",    d: .08  },
-                { label: "Unique Routes",  value: fmt(data.Unique_Routes),          color: "c-gold",  ghost: "RT", sub: "distinct itineraries", d: .16  },
-                { label: "Total Stations", value: fmt(totalStations),               color: "c-amber", ghost: "ST", sub: "network stations",     d: .24  },
-              ].map(s => (
-                <div key={s.label} className="db-hero-stat" style={{ animationDelay: `${s.d}s` }}>
-                  <div className="db-card-rail" />
-                  <div className="db-hero-stat-ghost">{s.ghost}</div>
-                  <div className="db-hero-stat-label">{s.label}</div>
-                  <div className={`db-hero-stat-value ${s.color}`}>{s.value}</div>
-                  <div className="db-hero-stat-sub">{s.sub}</div>
-                </div>
-              ))}
-            </div>
-
-            <RailDivider />
-
-            {/* ── KPI GRID ── */}
-            <SectionLabel>Performance Averages</SectionLabel>
-            <div className="db-kpi-grid">
-              {[
-                { label: "Avg Speed",     value: `${fmt(data.Average_Speed, 1)} km/h`,        color: "c-gold",  unit: "fleet average",    d: 0    },
-                { label: "Avg Distance",  value: `${fmt(data.Average_Distance, 0)} km`,        color: "c-green", unit: "per route",         d: .05  },
-                { label: "Avg Occupancy", value: `${fmt(data.Average_Occupancy, 1)}%`,         color: (data.Average_Occupancy ?? 0) > 85 ? "c-amber" : "c-green", unit: "seat utilisation", d: .10 },
-                { label: "Punctuality",   value: `${fmt(data.Average_Punctuality, 1)}`,        color: (data.Average_Punctuality ?? 0) > 75 ? "c-green" : (data.Average_Punctuality ?? 0) > 50 ? "c-gold" : "c-amber", unit: "score / 100", d: .15 },
-                ...(avgDelay  != null ? [{ label: "Delay Risk",  value: `${fmt(avgDelay, 1)}%`,     color: "c-red",   unit: "avg probability", d: .20 }] : []),
-                ...(electPct  != null ? [{ label: "Electrified", value: `${fmt(electPct, 1)}%`,     color: "c-green", unit: "routes on grid",  d: .25 }] : []),
-                ...(avgRating != null ? [{ label: "Avg Rating",  value: `${fmt(avgRating, 2)} / 5`, color: "c-gold",  unit: "passenger score", d: .30 }] : []),
-                ...(totalRev  != null ? [{ label: "Revenue",     value: fmtCr(totalRev),             color: "c-green", unit: "total network",   d: .35 }] : []),
-                { label: "Categories", value: `${catEntries.length}`,  color: "c-amber", unit: "train types",   d: .40 },
-                { label: "Zones",      value: `${zoneEntries.length}`, color: "c-gold",  unit: "tracked zones", d: .45 },
-                ...((data.High_Delay_Risk_Trains ?? []).length > 0 ? [{ label: "High Delay", value: `${data.High_Delay_Risk_Trains.length}`, color: "c-red",   unit: "flagged trains", d: .50 }] : []),
-                ...((data.Top_Punctual_Trains    ?? []).length > 0 ? [{ label: "Top Trains", value: `${data.Top_Punctual_Trains.length}`,    color: "c-green", unit: "best in class",  d: .55 }] : []),
-              ].map(k => (
-                <div key={k.label} className="db-kpi-card" style={{ animationDelay: `${k.d}s` }}>
-                  <div className="db-kpi-label">{k.label}</div>
-                  <div className={`db-kpi-value ${k.color}`}>{k.value}</div>
-                  <div className="db-kpi-unit">{k.unit}</div>
-                </div>
-              ))}
-            </div>
-
-            <RailDivider />
-
-            {/* ── FLEET COMPOSITION ── */}
-            <SectionLabel>Fleet Composition</SectionLabel>
-            <div className="db-cols">
-              <div className="db-panel">
-                <div className="db-scan-line" />
-                <SectionLabel>Train Categories</SectionLabel>
-                <div className="db-cat-list">
-                  {catEntries.map(([cat, count], i) => (
-                    <div key={cat} className="db-cat-row" style={{ animationDelay: `${i * .055}s` }}>
-                      <div className="db-cat-name">{cat}</div>
-                      <div className="db-cat-bar-bg">
-                        <div
-                          className="db-cat-bar-fill"
-                          style={{ width: `${(count / maxCat) * 100}%`, background: catBarColor(cat), animationDelay: `${i * .06}s` }}
-                        />
-                      </div>
-                      <div className="db-cat-count">{count}</div>
-                    </div>
-                  ))}
-                </div>
+          {!loading && !error && data && (
+            <>
+              {/* ── HERO STATS ── */}
+              <SectionLabel>Core Network Metrics</SectionLabel>
+              <div className="db-hero-grid">
+                {[
+                  { label: "Total Trains",   value: fmt(data.Total_Trains),           color: "c-gold",  ghost: "TR", sub: "across network",       d: 0    },
+                  { label: "Railway Zones",  value: fmt(data.Unique_Railway_Zones),   color: "c-green", ghost: "ZN", sub: "operational zones",     d: .07  },
+                  { label: "Unique Routes",  value: fmt(data.Unique_Routes),          color: "c-gold",  ghost: "RT", sub: "distinct itineraries",  d: .14  },
+                  { label: "Total Stations", value: fmt(totalStations),               color: "c-amber", ghost: "ST", sub: "network stations",      d: .21  },
+                ].map(s => (
+                  <div key={s.label} className="db-hero-stat" style={{ animationDelay: `${s.d}s` }}>
+                    <div className="db-hero-rail" style={{ background: railColor(s.color) }} />
+                    <div className="db-hero-ghost">{s.ghost}</div>
+                    <div className="db-hero-stat-label">{s.label}</div>
+                    <div className={`db-hero-stat-value ${s.color}`}>{s.value}</div>
+                    <div className="db-hero-stat-sub">{s.sub}</div>
+                  </div>
+                ))}
               </div>
 
-              <div className="db-panel">
-                <div className="db-scan-line" />
-                <SectionLabel>Railway Zones</SectionLabel>
-                <div className="db-zone-grid">
-                  {zoneEntries.map(([zone, count], i) => (
-                    <div key={zone} className="db-zone-item" style={{ animationDelay: `${i * .045}s` }}>
-                      <div>
+              <div className="db-divider" />
+
+              {/* ── KPI GRID ── */}
+              <SectionLabel>Performance Averages</SectionLabel>
+              <div className="db-kpi-grid">
+                {[
+                  { label: "Avg Speed",     value: `${fmt(data.Average_Speed, 1)} km/h`,         color: "c-gold",  unit: "fleet average",    d: 0    },
+                  { label: "Avg Distance",  value: `${fmt(data.Average_Distance, 0)} km`,          color: "c-green", unit: "per route",         d: .05  },
+                  { label: "Avg Occupancy", value: `${fmt(data.Average_Occupancy, 1)}%`,           color: (data.Average_Occupancy ?? 0) > 85 ? "c-amber" : "c-green", unit: "utilisation", d: .1  },
+                  { label: "Punctuality",   value: fmt(data.Average_Punctuality, 1),               color: (data.Average_Punctuality ?? 0) > 75 ? "c-green" : "c-gold", unit: "score / 100",   d: .15  },
+                  ...(avgDelay  != null ? [{ label: "Delay Risk",  value: `${fmt(avgDelay, 1)}%`,  color: "c-red",   unit: "avg probability",  d: .20 }] : []),
+                  ...(electPct  != null ? [{ label: "Electrified", value: `${fmt(electPct, 1)}%`,  color: "c-green", unit: "routes on grid",   d: .25 }] : []),
+                  ...(avgRating != null ? [{ label: "Rating",      value: `${fmt(avgRating, 2)}/5`,color: "c-gold",  unit: "passenger score",  d: .30 }] : []),
+                  ...(totalRev  != null ? [{ label: "Revenue",     value: fmtCr(totalRev),          color: "c-green", unit: "total network",    d: .35 }] : []),
+                  { label: "Categories", value: `${catEntries.length}`,  color: "c-amber", unit: "train types",    d: .40 },
+                  { label: "Zones",      value: `${zoneEntries.length}`, color: "c-gold",  unit: "tracked zones",  d: .45 },
+                  ...((data.High_Delay_Risk_Trains ?? []).length > 0 ? [{ label: "High Delay", value: `${data.High_Delay_Risk_Trains.length}`, color: "c-red",   unit: "flagged trains", d: .50 }] : []),
+                  ...((data.Top_Punctual_Trains    ?? []).length > 0 ? [{ label: "Top Trains", value: `${data.Top_Punctual_Trains.length}`,    color: "c-green", unit: "best in class",  d: .55 }] : []),
+                ].map(k => (
+                  <div key={k.label} className="db-kpi-card" style={{ animationDelay: `${k.d}s` }}>
+                    <div className="db-kpi-label">{k.label}</div>
+                    <div className={`db-kpi-value ${k.color}`}>{k.value}</div>
+                    <div className="db-kpi-unit">{k.unit}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="db-divider" />
+
+              {/* ── FLEET COMPOSITION ── */}
+              <SectionLabel>Fleet Composition</SectionLabel>
+              <div className="db-cols">
+
+                {/* Categories panel */}
+                <div className="db-panel">
+                  <div className="db-scan" />
+                  <SectionLabel>Train Categories</SectionLabel>
+                  <div className="db-cat-list">
+                    {catEntries.map(([cat, count], i) => (
+                      <div key={cat} className="db-cat-row" style={{ animationDelay: `${i * .055}s` }}>
+                        <div className="db-cat-name">{cat}</div>
+                        <div className="db-cat-bar-bg">
+                          <div
+                            className="db-cat-bar-fill"
+                            style={{ width: `${(count / maxCat) * 100}%`, background: catBarColor(cat), animationDelay: `${i * .06}s` }}
+                          />
+                        </div>
+                        <div className="db-cat-count">{count}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Zones panel */}
+                <div className="db-panel">
+                  <div className="db-scan" />
+                  <SectionLabel>Railway Zones</SectionLabel>
+                  <div className="db-zone-grid">
+                    {zoneEntries.map(([zone, count], i) => (
+                      <div key={zone} className="db-zone-item" style={{ animationDelay: `${i * .04}s` }}>
                         <div className="db-zone-name">{zone}</div>
-                        <div style={{ marginTop: ".35rem" }}>
-                          <div className="db-cat-bar-bg" style={{ height: "3px" }}>
+                        <div className="db-zone-bar-wrap">
+                          <div className="db-cat-bar-bg" style={{ height: "8px" }}>
                             <div className="db-cat-bar-fill" style={{ width: `${(count / maxZone) * 100}%`, background: "#c9973a", animationDelay: `${i * .05}s` }} />
                           </div>
                         </div>
+                        <div className="db-zone-count">{count}</div>
                       </div>
-                      <div className="db-zone-count">{count}</div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* ── TOP PUNCTUAL TRAINS ── */}
-            {(data.Top_Punctual_Trains ?? []).length > 0 && (
-              <>
-                <RailDivider />
-                <SectionLabel>Top Punctual Trains</SectionLabel>
-                <div className="db-panel" style={{ marginBottom: "1.75rem" }}>
-                  <div className="db-scan-line" />
-                  <div className="db-table-wrap">
-                    <table className="db-table">
-                      <thead>
-                        <tr>
-                          <th>No.</th><th>Name</th><th>Category</th><th>Route</th>
-                          <th>Punctuality</th><th>Speed</th><th>Dist</th><th>Zone</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.Top_Punctual_Trains.map((t, i) => (
-                          <tr key={t.TrainNo} style={{ animationDelay: `${i * .07}s` }}>
-                            <td><span className="db-train-no">{t.TrainNo}</span></td>
-                            <td><div className="db-train-name">{t.TrainName}</div></td>
-                            <td><span className={`db-cat-badge ${catBadgeClass(t.TrainCategory)}`}>{t.TrainCategory}</span></td>
-                            <td style={{ fontSize: "clamp(.76rem, 1vw, .9rem)", color: "#6b7280", whiteSpace: "nowrap", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis" }}>
-                              {t.StartingPoint} → {t.FinalDestination}
-                            </td>
-                            <td>
-                              <div className="db-score-bar">
-                                <div className="db-score-bg">
-                                  <div className="db-score-fill" style={{ width: `${t.PunctualityScore ?? 0}%`, background: scoreColor(t.PunctualityScore, 100), animationDelay: `${i * .08}s` }} />
-                                </div>
-                                <span className="db-score-num" style={{ color: scoreColor(t.PunctualityScore, 100) }}>{fmt(t.PunctualityScore, 1)}</span>
-                              </div>
-                            </td>
-                            <td style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(.65rem,.9vw,.78rem)", color: "#c9973a" }}>
-                              {fmt(t.AverageSpeed_kmph, 1)}<span style={{ color: "#6b7280" }}> km/h</span>
-                            </td>
-                            <td style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(.65rem,.9vw,.78rem)", color: "#6b7280" }}>{fmt(t.Distance_km)} km</td>
-                            <td style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(.58rem,.8vw,.7rem)", color: "#6b7280" }}>{t.RailwayZone}</td>
+              {/* ── TOP PUNCTUAL TRAINS ── */}
+              {(data.Top_Punctual_Trains ?? []).length > 0 && (
+                <>
+                  <div className="db-divider" />
+                  <SectionLabel>Top Punctual Trains</SectionLabel>
+                  <div className="db-panel" style={{ marginBottom: "1.2rem" }}>
+                    <div className="db-scan" />
+
+                    {/* ── MOBILE: train cards (shown < 900px) ── */}
+                    <div className="db-train-list">
+                      {data.Top_Punctual_Trains.map((t, i) => (
+                        <div key={t.TrainNo} className="db-train-card" style={{ animationDelay: `${i * .055}s` }}
+                          onClick={() => setSelectedTrain(t.TrainNo)}>
+                          <div className="db-tc-top">
+                            <span className="db-tc-no">{t.TrainNo}</span>
+                            <div className="db-tc-name">{t.TrainName}</div>
+                            <span className={`db-cat-badge ${catBadgeClass(t.TrainCategory)}`}>{t.TrainCategory}</span>
+                          </div>
+                          <div className="db-tc-route">
+                            {t.StartingPoint} <span>→</span> {t.FinalDestination}
+                          </div>
+                          <div className="db-tc-stats">
+                            <div className="db-tc-stat">
+                              <div className="db-tc-stat-label">Speed</div>
+                              <div className="db-tc-stat-val c-gold">{fmt(t.AverageSpeed_kmph, 1)} <span style={{fontSize:"clamp(.6rem,1.5vw,.7rem)",color:"#6b7280"}}>km/h</span></div>
+                            </div>
+                            <div className="db-tc-stat">
+                              <div className="db-tc-stat-label">Dist</div>
+                              <div className="db-tc-stat-val c-muted">{fmt(t.Distance_km)} <span style={{fontSize:"clamp(.6rem,1.5vw,.7rem)",color:"#6b7280"}}>km</span></div>
+                            </div>
+                            <div className="db-tc-stat">
+                              <div className="db-tc-stat-label">Zone</div>
+                              <div className="db-tc-stat-val c-muted" style={{fontSize:"clamp(.8rem,2.2vw,1rem)"}}>{t.RailwayZone}</div>
+                            </div>
+                          </div>
+                          <div className="db-tc-score">
+                            <div className="db-tc-score-label">Punctuality</div>
+                            <div className="db-score-bg">
+                              <div className="db-score-fill" style={{ width: `${t.PunctualityScore ?? 0}%`, background: scoreColor(t.PunctualityScore, 100), animationDelay: `${i * .08}s` }} />
+                            </div>
+                            <span className="db-score-num" style={{ color: scoreColor(t.PunctualityScore, 100) }}>{fmt(t.PunctualityScore, 1)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* ── DESKTOP: table (shown ≥ 900px) ── */}
+                    <div className="db-table-wrap">
+                      <table className="db-table">
+                        <thead>
+                          <tr>
+                            <th>No.</th><th>Name</th><th>Category</th><th>Route</th>
+                            <th>Punctuality</th><th>Speed</th><th>Dist</th><th>Zone</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* ── HIGH DELAY RISK ── */}
-            {(data.High_Delay_Risk_Trains ?? []).length > 0 && (
-              <>
-                <SectionLabel>High Delay Risk — Flagged Trains</SectionLabel>
-                <div className="db-panel" style={{ border: "1px solid rgba(224,82,82,.2)" }}>
-                  <div className="db-scan-line" />
-                  <div className="db-table-wrap">
-                    <table className="db-table">
-                      <thead>
-                        <tr>
-                          <th>No.</th><th>Name</th><th>Category</th><th>Route</th>
-                          <th>Delay Risk</th><th>Speed</th><th>Dist</th><th>Zone</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.High_Delay_Risk_Trains.map((t, i) => (
-                          <tr key={t.TrainNo} style={{ animationDelay: `${i * .07}s` }}>
-                            <td><span className="db-train-no" style={{ color: "#e05252", borderColor: "rgba(224,82,82,.2)", background: "rgba(224,82,82,.08)" }}>{t.TrainNo}</span></td>
-                            <td><div className="db-train-name">{t.TrainName}</div></td>
-                            <td><span className={`db-cat-badge ${catBadgeClass(t.TrainCategory)}`}>{t.TrainCategory}</span></td>
-                            <td style={{ fontSize: "clamp(.76rem,1vw,.9rem)", color: "#6b7280", whiteSpace: "nowrap", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis" }}>
-                              {t.StartingPoint} → {t.FinalDestination}
-                            </td>
-                            <td>
-                              <div className="db-score-bar">
-                                <div className="db-score-bg">
-                                  <div className="db-score-fill" style={{ width: `${t.DelayProbability ?? 0}%`, background: "#e05252", animationDelay: `${i * .08}s` }} />
+                        </thead>
+                        <tbody>
+                          {data.Top_Punctual_Trains.map((t, i) => (
+                            <tr key={t.TrainNo} onClick={() => setSelectedTrain(t.TrainNo)}>
+                              <td><span className="db-train-no">{t.TrainNo}</span></td>
+                              <td><div className="db-train-name">{t.TrainName}</div></td>
+                              <td><span className={`db-cat-badge ${catBadgeClass(t.TrainCategory)}`}>{t.TrainCategory}</span></td>
+                              <td style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"clamp(.62rem,1vw,.76rem)", color:"#6b7280", whiteSpace:"nowrap", maxWidth:180, overflow:"hidden", textOverflow:"ellipsis" }}>
+                                {t.StartingPoint} → {t.FinalDestination}
+                              </td>
+                              <td>
+                                <div className="db-score-bar-d">
+                                  <div className="db-score-bg-d">
+                                    <div className="db-score-fill-d" style={{ width:`${t.PunctualityScore??0}%`, background:scoreColor(t.PunctualityScore,100), animationDelay:`${i*.08}s` }} />
+                                  </div>
+                                  <span className="db-score-num-d" style={{ color:scoreColor(t.PunctualityScore,100) }}>{fmt(t.PunctualityScore,1)}</span>
                                 </div>
-                                <span className="db-score-num" style={{ color: "#e05252" }}>{fmt(t.DelayProbability, 1)}%</span>
-                              </div>
-                            </td>
-                            <td style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(.65rem,.9vw,.78rem)", color: "#c9973a" }}>
-                              {fmt(t.AverageSpeed_kmph, 1)}<span style={{ color: "#6b7280" }}> km/h</span>
-                            </td>
-                            <td style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(.65rem,.9vw,.78rem)", color: "#6b7280" }}>{fmt(t.Distance_km)} km</td>
-                            <td style={{ fontFamily: "'Space Mono',monospace", fontSize: "clamp(.58rem,.8vw,.7rem)", color: "#6b7280" }}>{t.RailwayZone}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                              </td>
+                              <td style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"clamp(.66rem,.9vw,.8rem)", color:"#c9973a" }}>
+                                {fmt(t.AverageSpeed_kmph,1)}<span style={{color:"#6b7280"}}> km/h</span>
+                              </td>
+                              <td style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"clamp(.66rem,.9vw,.8rem)", color:"#6b7280" }}>{fmt(t.Distance_km)} km</td>
+                              <td style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"clamp(.58rem,.82vw,.7rem)", color:"#6b7280" }}>{t.RailwayZone}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
-              </>
-            )}
+                </>
+              )}
 
-            <div className="db-footer">
-              <span>Railway Intelligence System © 2025</span>
-              <span className="db-footer-accent">▶ ALL SYSTEMS OPERATIONAL</span>
-              <span>Dataset · 1005 Trains · Powered by RI/Core</span>
-            </div>
-          </>
-        )}
+              {/* ── HIGH DELAY RISK ── */}
+              {(data.High_Delay_Risk_Trains ?? []).length > 0 && (
+                <>
+                  <div className="db-divider" />
+                  <SectionLabel>High Delay Risk — Flagged Trains</SectionLabel>
+                  <div className="db-panel danger">
+                    <div className="db-scan" />
+
+                    {/* ── MOBILE: train cards ── */}
+                    <div className="db-train-list">
+                      {data.High_Delay_Risk_Trains.map((t, i) => (
+                        <div key={t.TrainNo} className="db-train-card flagged" style={{ animationDelay: `${i * .055}s` }}
+                          onClick={() => setSelectedTrain(t.TrainNo)}>
+                          <div className="db-tc-top">
+                            <span className="db-tc-no red">{t.TrainNo}</span>
+                            <div className="db-tc-name">{t.TrainName}</div>
+                            <span className={`db-cat-badge ${catBadgeClass(t.TrainCategory)}`}>{t.TrainCategory}</span>
+                          </div>
+                          <div className="db-tc-route">
+                            {t.StartingPoint} <span>→</span> {t.FinalDestination}
+                          </div>
+                          <div className="db-tc-stats">
+                            <div className="db-tc-stat">
+                              <div className="db-tc-stat-label">Speed</div>
+                              <div className="db-tc-stat-val c-gold">{fmt(t.AverageSpeed_kmph, 1)} <span style={{fontSize:"clamp(.6rem,1.5vw,.7rem)",color:"#6b7280"}}>km/h</span></div>
+                            </div>
+                            <div className="db-tc-stat">
+                              <div className="db-tc-stat-label">Dist</div>
+                              <div className="db-tc-stat-val c-muted">{fmt(t.Distance_km)} <span style={{fontSize:"clamp(.6rem,1.5vw,.7rem)",color:"#6b7280"}}>km</span></div>
+                            </div>
+                            <div className="db-tc-stat">
+                              <div className="db-tc-stat-label">Zone</div>
+                              <div className="db-tc-stat-val c-muted" style={{fontSize:"clamp(.8rem,2.2vw,1rem)"}}>{t.RailwayZone}</div>
+                            </div>
+                          </div>
+                          <div className="db-tc-score">
+                            <div className="db-tc-score-label">Delay Risk</div>
+                            <div className="db-score-bg">
+                              <div className="db-score-fill" style={{ width: `${t.DelayProbability ?? 0}%`, background: "#e05252", animationDelay: `${i * .08}s` }} />
+                            </div>
+                            <span className="db-score-num" style={{ color: "#e05252" }}>{fmt(t.DelayProbability, 1)}%</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* ── DESKTOP: table ── */}
+                    <div className="db-table-wrap">
+                      <table className="db-table">
+                        <thead>
+                          <tr>
+                            <th>No.</th><th>Name</th><th>Category</th><th>Route</th>
+                            <th>Delay Risk</th><th>Speed</th><th>Dist</th><th>Zone</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {data.High_Delay_Risk_Trains.map((t, i) => (
+                            <tr key={t.TrainNo} onClick={() => setSelectedTrain(t.TrainNo)}>
+                              <td><span className="db-train-no" style={{ color:"#e05252", borderColor:"rgba(224,82,82,.25)", background:"rgba(224,82,82,.09)" }}>{t.TrainNo}</span></td>
+                              <td><div className="db-train-name">{t.TrainName}</div></td>
+                              <td><span className={`db-cat-badge ${catBadgeClass(t.TrainCategory)}`}>{t.TrainCategory}</span></td>
+                              <td style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"clamp(.62rem,1vw,.76rem)", color:"#6b7280", whiteSpace:"nowrap", maxWidth:180, overflow:"hidden", textOverflow:"ellipsis" }}>
+                                {t.StartingPoint} → {t.FinalDestination}
+                              </td>
+                              <td>
+                                <div className="db-score-bar-d">
+                                  <div className="db-score-bg-d">
+                                    <div className="db-score-fill-d" style={{ width:`${t.DelayProbability??0}%`, background:"#e05252", animationDelay:`${i*.08}s` }} />
+                                  </div>
+                                  <span className="db-score-num-d" style={{ color:"#e05252" }}>{fmt(t.DelayProbability,1)}%</span>
+                                </div>
+                              </td>
+                              <td style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"clamp(.66rem,.9vw,.8rem)", color:"#c9973a" }}>
+                                {fmt(t.AverageSpeed_kmph,1)}<span style={{color:"#6b7280"}}> km/h</span>
+                              </td>
+                              <td style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"clamp(.66rem,.9vw,.8rem)", color:"#6b7280" }}>{fmt(t.Distance_km)} km</td>
+                              <td style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"clamp(.58rem,.82vw,.7rem)", color:"#6b7280" }}>{t.RailwayZone}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ── FOOTER ── */}
+              <div className="db-footer">
+                <span>Railway Intelligence System © 2025</span>
+                <span className="db-footer-accent">▶ ALL SYSTEMS OPERATIONAL</span>
+                <span>Dataset · 1005 Trains · Powered by RI/Core</span>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </Navbar>
   )
