@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import Navbar from "../../pages/Navbar"
 
-const API_URI = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "")
+const API_URI = "https://rail-pulse-backend.onrender.com"
 
 const DB_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
