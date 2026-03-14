@@ -546,7 +546,8 @@ const CSS = `
   }
 `;
 
-const BASE = `${import.meta.env.VITE_API_URL}/api`;
+
+const BASE = `${import.meta.env.VITE_API_URL}/api/train`;
 
 const CATEGORIES = ['Sampark Kranti Express (SK)', 'Superfast Express (SF)',
   'Rajdhani Express (RJDH)', 'Special Train (SPL)',
