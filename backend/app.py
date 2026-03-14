@@ -26,17 +26,22 @@ app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_COOKIE_SECURE"] = False
-app.config["JWT_COOKIE_SAMESITE"] = "Lax"
+app.config["JWT_COOKIE_SAMESITE"] = "None"
 app.config["JWT_COOKIE_CSRF_PROTECT"] = False
 
-# Extensions
+# Enable CORS for local + Vercel frontend
 CORS(
     app,
     supports_credentials=True,
-    origins=["http://localhost:5173"],
+    origins=[
+        "http://localhost:5173",
+        "https://rail-pulse.vercel.app",
+        "https://*.vercel.app"
+    ],
     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"]
 )
+
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
@@ -49,6 +54,10 @@ Demand_Routes(app)
 RevenueAnalytics(app)
 register_infrastructure_routes(app)
 
+# Optional root route (so "/" doesn't show 404)
+@app.route("/")
+def home():
+    return {"message": "RailPulse API is running"}
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
