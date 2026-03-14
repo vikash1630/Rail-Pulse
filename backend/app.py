@@ -29,18 +29,8 @@ app.config["JWT_COOKIE_SECURE"] = False
 app.config["JWT_COOKIE_SAMESITE"] = "None"
 app.config["JWT_COOKIE_CSRF_PROTECT"] = False
 
-# Enable CORS for local + Vercel frontend
-CORS(
-    app,
-    supports_credentials=True,
-    origins=[
-        "http://localhost:5173",
-        "https://rail-pulse.vercel.app",
-        "https://*.vercel.app"
-    ],
-    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"]
-)
+# Enable CORS for ALL origins
+CORS(app, supports_credentials=True)
 
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
@@ -54,7 +44,6 @@ Demand_Routes(app)
 RevenueAnalytics(app)
 register_infrastructure_routes(app)
 
-# Optional root route (so "/" doesn't show 404)
 @app.route("/")
 def home():
     return {"message": "RailPulse API is running"}
