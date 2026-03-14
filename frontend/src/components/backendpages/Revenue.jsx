@@ -87,7 +87,7 @@ const CSS = `
   }
 
   @media (min-width: 700px) {
-    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .kpi-grid { grid-template-columns: repeat(4, 1fr); }
   }
 
   .kpi-card {
@@ -138,6 +138,7 @@ const CSS = `
   .kpi-value.green  { color: var(--sig-green); }
   .kpi-value.red    { color: var(--sig-red); }
   .kpi-value.amber  { color: var(--sig-amber); }
+  .kpi-value.blue   { color: #60a5fa; }
 
   .kpi-sub {
     font-family: var(--font-mono);
@@ -401,6 +402,48 @@ const CSS = `
     margin-top: 0.25rem;
   }
 
+  /* ── TRAINS TABLE (for by-name multi-result) ── */
+  .trains-table-wrap {
+    overflow-x: auto;
+    margin-top: 1.2rem;
+  }
+
+  .trains-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+
+  .trains-table thead tr {
+    border-bottom: 1px solid var(--gold-glow);
+  }
+
+  .trains-table th {
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .trains-table td {
+    color: var(--text-2);
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .trains-table tbody tr:hover td {
+    background: rgba(201,151,58,0.04);
+    color: var(--text-1);
+  }
+
+  .trains-table .td-num {
+    color: var(--gold-light);
+    font-weight: 600;
+  }
+
   /* ── ERROR / LOADING ── */
   .status-text {
     font-family: var(--font-mono);
@@ -512,8 +555,25 @@ const CSS = `
 
 const BASE = "http://localhost:5000/api/train";
 
-const CATEGORIES = ["Rajdhani", "Shatabdi", "Vande Bharat", "Express", "Mail", "Superfast", "Passenger", "Local"];
-const ZONES = ['Western Railway', 'South Central Railway', 'Eastern Railway', 'Southern Railway', 'Northern Railway'];
+const CATEGORIES = ['Sampark Kranti Express (SK)', 'Superfast Express (SF)',
+       'Rajdhani Express (RJDH)', 'Special Train (SPL)',
+       'Tejas Express (TEJ)', 'Suburban Local (EMU)', 'DEMU (DEMU)',
+       'Humsafar Express (HMSFR)', 'Double Decker Express (DD)',
+       'Duronto Express (DRNT)', 'Vande Bharat Express (VB)',
+       'Jan Shatabdi Express (JSTBD)', 'Shatabdi Express (SHTBD)',
+       'Mail Express (ME)', 'MEMU (MEMU)', 'Passenger (PASS)',
+       'Garib Rath Express (GR)', 'Intercity Express (IC)',
+       'Antyodaya Express (ANTY)']
+const ZONES = ['Northeast Frontier Railway (NFR)', 'North Central Railway (NCR)',
+       'Metro Railway Kolkata (MTPR)', 'East Coast Railway (ECoR)',
+       'South Central Railway (SCR)', 'Konkan Railway (KR)',
+       'South Eastern Railway (SER)', 'West Central Railway (WCR)',
+       'Southern Railway (SR)', 'Central Railway (CR)',
+       'Western Railway (WR)', 'Northern Railway (NR)',
+       'Eastern Railway (ER)', 'North Eastern Railway (NER)',
+       'South Coast Railway (SCoR)', 'North Western Railway (NWR)',
+       'East Central Railway (ECR)', 'South East Central Railway (SECR)',
+       'South Western Railway (SWR)'];
 
 function formatINR(val) {
   if (val === null || val === undefined) return "—";
@@ -585,62 +645,130 @@ function ResultPanel({ state }) {
     );
   }
 
-  // success
-  const items = [];
+  // ── Build items based on mode ──
+  let items = [];
+  let tableRows = null;
 
   if (mode === "zone") {
-    items.push({ label: "Zone", value: data.zone, isText: true });
-    items.push({ label: "Train Count", value: data.count, isNum: true });
-    items.push({ label: "Avg Revenue", value: formatINR(data.average_revenue), isINR: true });
+    items = [
+      { label: "Zone",        value: data.zone,                    isText: true },
+      { label: "Train Count", value: String(data.count),           isText: true },
+      { label: "Avg Revenue", value: formatINR(data.average_revenue) },
+    ];
   } else if (mode === "category") {
-    items.push({ label: "Category", value: data.category, isText: true });
-    items.push({ label: "Train Count", value: data.count, isNum: true });
-    items.push({ label: "Avg Revenue", value: formatINR(data.average_revenue), isINR: true });
+    items = [
+      { label: "Category",    value: data.category,                isText: true },
+      { label: "Train Count", value: String(data.count),           isText: true },
+      { label: "Avg Revenue", value: formatINR(data.average_revenue) },
+    ];
+  } else if (mode === "number") {
+    items = [
+      { label: "Train No",   value: String(data.TrainNo),          isText: true },
+      { label: "Train Name", value: data.TrainName,                isText: true },
+      { label: "Revenue",    value: formatINR(data.Revenue) },
+      { label: "Stops",      value: String(data.stops),            isText: true },
+      { label: "Distance",   value: `${data.distance?.toFixed(1)} km`, isText: true },
+    ];
+  } else if (mode === "name") {
+    items = [
+      { label: "Train Name",   value: data.train_name,             isText: true },
+      { label: "Matches",      value: String(data.count),          isText: true },
+      { label: "Net Revenue",  value: formatINR(data.net_revenue) },
+    ];
+    if (data.trains && data.trains.length > 0) {
+      tableRows = data.trains;
+    }
   }
+
+  const BADGE_MAP = {
+    zone: "BY ZONE",
+    category: "BY CATEGORY",
+    number: "BY TRAIN NO",
+    name: "BY TRAIN NAME",
+  };
 
   return (
     <div className="result-panel has-data">
       <div className="result-inner">
         <div className="result-header-row">
-          <div className="result-badge">{mode === "zone" ? "BY ZONE" : "BY CATEGORY"}</div>
+          <div className="result-badge">{BADGE_MAP[mode] ?? mode.toUpperCase()}</div>
           <div className="result-meta">QUERY RESULT · {new Date().toLocaleTimeString()}</div>
         </div>
         <div className="result-data-grid">
           {items.map((it) => (
             <div className="result-stat" key={it.label}>
               <div className="result-stat-label">{it.label}</div>
-              <div className="result-stat-value" style={it.isText ? { fontSize: "1.1rem", color: "var(--text-1)" } : {}}>
+              <div
+                className="result-stat-value"
+                style={it.isText ? { fontSize: "1rem", color: "var(--text-1)" } : {}}
+              >
                 {it.value ?? "—"}
               </div>
             </div>
           ))}
         </div>
+
+        {/* Multi-train table rendered only for by-name results */}
+        {tableRows && (
+          <div className="trains-table-wrap">
+            <table className="trains-table">
+              <thead>
+                <tr>
+                  <th>Train No</th>
+                  <th>Train Name</th>
+                  <th>Revenue</th>
+                  <th>Stops</th>
+                  <th>Distance (km)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tableRows.map((t) => (
+                  <tr key={t.TrainNo}>
+                    <td className="td-num">{t.TrainNo}</td>
+                    <td>{t.TrainName}</td>
+                    <td className="td-num">{formatINR(t.Revenue)}</td>
+                    <td>{t.stops}</td>
+                    <td>{t.distance?.toFixed(1)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 export default function Revenue() {
-  const [kpi, setKpi] = useState({ highest: null, lowest: null, average: null });
+  const [kpi, setKpi] = useState({ highest: null, lowest: null, average: null, total: null, totalTrains: null });
   const [kpiLoading, setKpiLoading] = useState(true);
 
-  const [zone, setZone] = useState("");
-  const [cat, setCat] = useState("");
+  const [zone, setZone]           = useState("");
+  const [cat, setCat]             = useState("");
+  const [trainNum, setTrainNum]   = useState("");
+  const [trainName, setTrainName] = useState("");
 
-  const [zoneResult, setZoneResult] = useState({ status: "idle", data: null, mode: "zone" });
-  const [catResult, setCatResult] = useState({ status: "idle", data: null, mode: "category" });
+  const [zoneResult, setZoneResult]   = useState({ status: "idle", data: null, mode: "zone" });
+  const [catResult, setCatResult]     = useState({ status: "idle", data: null, mode: "category" });
+  const [numResult, setNumResult]     = useState({ status: "idle", data: null, mode: "number" });
+  const [nameResult, setNameResult]   = useState({ status: "idle", data: null, mode: "name" });
 
+  // ── Load all four KPI tiles on mount ──
   useEffect(() => {
     Promise.all([
       fetch(`${BASE}/HighestRevenue`).then(r => r.json()),
       fetch(`${BASE}/LowestRevenue`).then(r => r.json()),
       fetch(`${BASE}/AverageRevenue`).then(r => r.json()),
+      fetch(`${BASE}/TotalRevenue`).then(r => r.json()),
     ])
-      .then(([h, l, a]) => {
+      .then(([h, l, a, t]) => {
         setKpi({
-          highest: h.highest_revenue,
-          lowest: l.lowest_revenue,
-          average: a.average_revenue,
+          highest:     h.highest_revenue,
+          lowest:      l.lowest_revenue,
+          average:     a.average_revenue,
+          total:       t.total_revenue,
+          totalTrains: t.total_trains,
         });
       })
       .catch(() => {})
@@ -668,6 +796,30 @@ export default function Revenue() {
       setCatResult({ status: r.ok ? "success" : "error", data: d, mode: "category" });
     } catch {
       setCatResult({ status: "error", data: { error: "Network error" }, mode: "category" });
+    }
+  };
+
+  const fetchByNum = async () => {
+    if (!trainNum.trim()) return;
+    setNumResult({ status: "loading", data: null, mode: "number" });
+    try {
+      const r = await fetch(`${BASE}/RevenueByNum?num=${encodeURIComponent(trainNum.trim())}`);
+      const d = await r.json();
+      setNumResult({ status: r.ok ? "success" : "error", data: d, mode: "number" });
+    } catch {
+      setNumResult({ status: "error", data: { error: "Network error" }, mode: "number" });
+    }
+  };
+
+  const fetchByName = async () => {
+    if (!trainName.trim()) return;
+    setNameResult({ status: "loading", data: null, mode: "name" });
+    try {
+      const r = await fetch(`${BASE}/RevenueByName?name=${encodeURIComponent(trainName.trim())}`);
+      const d = await r.json();
+      setNameResult({ status: r.ok ? "success" : "error", data: d, mode: "name" });
+    } catch {
+      setNameResult({ status: "error", data: { error: "Network error" }, mode: "name" });
     }
   };
 
@@ -706,6 +858,13 @@ export default function Revenue() {
               colorClass="green"
               ghost="Ø"
               sub="FLEET MEAN"
+            />
+            <KPICard
+              label="Total Revenue"
+              value={kpiLoading ? null : kpi.total}
+              colorClass="blue"
+              ghost="Σ"
+              sub={kpi.totalTrains ? `ACROSS ${kpi.totalTrains} TRAINS` : "ALL TRAINS"}
             />
           </div>
 
@@ -784,6 +943,78 @@ export default function Revenue() {
           </div>
 
           <ResultPanel state={catResult} />
+
+          {/* ── BY TRAIN NUMBER ── */}
+          <div className="section-divider">
+            <div className="section-divider-label">Revenue by Train Number</div>
+            <div className="section-divider-line" />
+          </div>
+
+          <div className="filter-panel" style={{ marginBottom: "1rem" }}>
+            <div className="filter-title">⬡ Train Number Filter</div>
+            <div className="filter-row">
+              <div className="filter-group">
+                <label className="filter-label">Train Number</label>
+                <input
+                  className="filter-input"
+                  type="number"
+                  placeholder="e.g. 77836"
+                  value={trainNum}
+                  onChange={e => setTrainNum(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && fetchByNum()}
+                />
+              </div>
+              <div className="filter-group" style={{ justifyContent: "flex-end" }}>
+                <label className="filter-label">&nbsp;</label>
+                <button
+                  className="btn-primary"
+                  onClick={fetchByNum}
+                  disabled={!trainNum.trim()}
+                  style={{ opacity: trainNum.trim() ? 1 : 0.5, cursor: trainNum.trim() ? "pointer" : "not-allowed" }}
+                >
+                  Fetch Revenue
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <ResultPanel state={numResult} />
+
+          {/* ── BY TRAIN NAME ── */}
+          <div className="section-divider">
+            <div className="section-divider-label">Revenue by Train Name</div>
+            <div className="section-divider-line" />
+          </div>
+
+          <div className="filter-panel" style={{ marginBottom: "1rem" }}>
+            <div className="filter-title">⬡ Train Name Filter</div>
+            <div className="filter-row">
+              <div className="filter-group">
+                <label className="filter-label">Train Name</label>
+                <input
+                  className="filter-input"
+                  type="text"
+                  placeholder="e.g. Madurai Intercity"
+                  value={trainName}
+                  onChange={e => setTrainName(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && fetchByName()}
+                />
+              </div>
+              <div className="filter-group" style={{ justifyContent: "flex-end" }}>
+                <label className="filter-label">&nbsp;</label>
+                <button
+                  className="btn-primary"
+                  onClick={fetchByName}
+                  disabled={!trainName.trim()}
+                  style={{ opacity: trainName.trim() ? 1 : 0.5, cursor: trainName.trim() ? "pointer" : "not-allowed" }}
+                >
+                  Fetch Revenue
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <ResultPanel state={nameResult} />
 
           {/* ── RAIL DECORATION ── */}
           <div className="rail-deco">

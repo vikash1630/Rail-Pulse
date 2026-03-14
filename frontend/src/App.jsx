@@ -6,6 +6,8 @@ import Navbar from "./pages/Navbar"
 import DemandAndInfra from "./components/backendpages/DemandAndInfra"
 import DashBoard from "./components/backendpages/DashBoard"
 import Revenue from "./components/backendpages/Revenue"
+import About from "./pages/About"
+import Contact from "./pages/Contact"
 
 function App() {
   return (
@@ -24,6 +26,9 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/train" element={<Train />} />
+        <Route path="/About" element={<About />} />
+        <Route path="/Contact" element={<Contact />} />
+
       </Routes>
 
     </BrowserRouter>

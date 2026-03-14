@@ -6,7 +6,10 @@ from src.controllers.RevenueAnalytics import (
     LowestRevenue_Train,
     AverageRevenue_Train,
     RevenueBy_cat,
-    RevenueBy_Zone
+    RevenueBy_Zone,
+    RevenueBy_num,
+    RevenueBy_name,
+    TotalRevenue_Trains
 
 )
 
@@ -37,6 +40,24 @@ def RevenueAnalytics(app):
     def RevenueByCat_Function():
         cat = request.args.get("cat")
         data, status = RevenueBy_cat(cat)
+        return jsonify(data), status
+    
+    @app.route("/api/train/RevenueByNum", methods=["GET"])
+    def RevenueBynum_Function():
+        num = request.args.get("num")
+        data, status = RevenueBy_num(num)
+        return jsonify(data), status
+    
+    
+    @app.route("/api/train/RevenueByName", methods=["GET"])
+    def RevenueByname_Function():
+        name = request.args.get("name")
+        data, status = RevenueBy_name(name)
+        return jsonify(data), status
+    
+    @app.route("/api/train/TotalRevenue", methods=["GET"])
+    def TotalRevenue_Function():
+        data, status = TotalRevenue_Trains()
         return jsonify(data), status
     
 

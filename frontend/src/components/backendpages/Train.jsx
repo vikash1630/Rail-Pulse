@@ -1052,9 +1052,27 @@ const MODES = [
   { id: "routemap",  label: "Route Map"   },
 ]
 
-const ZONES = ['Western Railway', 'South Central Railway', 'Eastern Railway', 'Southern Railway', 'Northern Railway']
-const CATEGORIES  = ["Rajdhani","Shatabdi","Duronto","Garib Rath","Express","Mail","Passenger","Superfast","Jan Shatabdi","Vande Bharat"]
-const ROUTE_TYPES = ["Mountain","Plain","Coastal"]
+const CATEGORIES = ['Sampark Kranti Express (SK)', 'Superfast Express (SF)',
+       'Rajdhani Express (RJDH)', 'Special Train (SPL)',
+       'Tejas Express (TEJ)', 'Suburban Local (EMU)', 'DEMU (DEMU)',
+       'Humsafar Express (HMSFR)', 'Double Decker Express (DD)',
+       'Duronto Express (DRNT)', 'Vande Bharat Express (VB)',
+       'Jan Shatabdi Express (JSTBD)', 'Shatabdi Express (SHTBD)',
+       'Mail Express (ME)', 'MEMU (MEMU)', 'Passenger (PASS)',
+       'Garib Rath Express (GR)', 'Intercity Express (IC)',
+       'Antyodaya Express (ANTY)']
+const ZONES = ['Northeast Frontier Railway (NFR)', 'North Central Railway (NCR)',
+       'Metro Railway Kolkata (MTPR)', 'East Coast Railway (ECoR)',
+       'South Central Railway (SCR)', 'Konkan Railway (KR)',
+       'South Eastern Railway (SER)', 'West Central Railway (WCR)',
+       'Southern Railway (SR)', 'Central Railway (CR)',
+       'Western Railway (WR)', 'Northern Railway (NR)',
+       'Eastern Railway (ER)', 'North Eastern Railway (NER)',
+       'South Coast Railway (SCoR)', 'North Western Railway (NWR)',
+       'East Central Railway (ECR)', 'South East Central Railway (SECR)',
+       'South Western Railway (SWR)'];
+const ROUTE_TYPES =  ['Delta', 'River Valley', 'Sea Coast', 'Mountain', 'Plateau',
+       'Desert', 'Coastal', 'Island', 'Plain', 'Forest']
 
 function catClass(cat = "") {
   const c = cat.toLowerCase()
@@ -1295,7 +1313,7 @@ const Train = () => {
         return (
           <div className="tw-field">
             <label>Train Number</label>
-            <input type="number" placeholder="e.g. 66630" value={num} onChange={e => setNum(e.target.value)} onKeyDown={onKeyDown} />
+            <input type="number" placeholder="e.g. 77836" value={num} onChange={e => setNum(e.target.value)} onKeyDown={onKeyDown} />
           </div>
         )
       case "name":
@@ -1345,7 +1363,7 @@ const Train = () => {
             <div className="tw-field">
               <label>Train A {cmpMode === "number" ? "(No.)" : "(Name)"}</label>
               <input
-                placeholder={cmpMode === "number" ? "66630" : "Madurai Intercity"}
+                placeholder={cmpMode === "number" ? "77836" : "Madurai Intercity"}
                 value={cmp1}
                 onChange={e => setCmp1(e.target.value)}
                 onKeyDown={onKeyDown}
@@ -1354,7 +1372,7 @@ const Train = () => {
             <div className="tw-field">
               <label>Train B {cmpMode === "number" ? "(No.)" : "(Name)"}</label>
               <input
-                placeholder={cmpMode === "number" ? "14331" : "Jaipur Rajdhani"}
+                placeholder={cmpMode === "number" ? "14331" : "Jaipur Rajadhani"}
                 value={cmp2}
                 onChange={e => setCmp2(e.target.value)}
                 onKeyDown={onKeyDown}
@@ -1517,7 +1535,7 @@ const Train = () => {
 
           <div className="tw-ticker">
             <div className="tw-ticker-item">
-              <span className="tw-ticker-val">500+</span>
+              <span className="tw-ticker-val">49000+</span>
               <span className="tw-ticker-label">Trains</span>
             </div>
             <div className="tw-ticker-divider" />
@@ -1527,8 +1545,12 @@ const Train = () => {
             </div>
             <div className="tw-ticker-divider" />
             <div className="tw-ticker-item">
-              <span className="tw-ticker-val">5</span>
+              <span className="tw-ticker-val">18+</span>
               <span className="tw-ticker-label">Zones</span>
+            </div>
+            <div className="tw-ticker-item">
+              <span className="tw-ticker-val">18+</span>
+              <span className="tw-ticker-label">Categories</span>
             </div>
           </div>
         </div>

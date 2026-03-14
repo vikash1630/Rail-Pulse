@@ -602,13 +602,15 @@ const NAV_CSS = `
 const EXPLORE_ITEMS = [
   { label: "DashBoard", to: "/",               icon:"🎬" },
   { label: "Trains",    to: "/train",          icon: "🚂" },
-  { label: "Schedule",  to: "/schedule",       icon: "🕐" },
-  { label: "Routes",    to: "/routes",         icon: "🗺" },
+  // { label: "Schedule",  to: "/schedule",       icon: "🕐" },
+  // { label: "Routes",    to: "/routes",         icon: "🗺" },
   { label: "Revenue",   to: "/Revenue",        icon: "💲"  },
   { label: "Demand",    to: "/DemandAndInfra", icon:"📊"} ,
 ]
 const MORE_ITEMS = [
-  { label: "Bookings", to: "/bookings", icon: "🎫" },
+  // { label: "Bookings", to: "/bookings", icon: "🎫" },
+     { label: "About Us", to: "/About", icon:"😐"},
+     { label: "Contact Us", to: "/Contact", icon:"📞"}
 ]
 
 const Navbar = ({ children }) => {

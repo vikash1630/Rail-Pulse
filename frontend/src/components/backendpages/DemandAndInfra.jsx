@@ -715,7 +715,7 @@ const catBadge = (cat = '') => {
   const c = cat.toLowerCase();
   if (c.includes('rajdhani') || c.includes('shatabdi') || c.includes('vande')) return 'gold';
   if (c.includes('express')) return 'green';
-  if (c.includes('mail'))    return 'amber';
+  if (c.includes('mail')) return 'amber';
   return 'red';
 };
 
@@ -774,14 +774,14 @@ const DemandOverviewTab = () => {
   }, []);
 
   if (state.loading) return <Loader text="Analysing demand signals" />;
-  if (state.error)   return <ErrBox msg={state.error} />;
+  if (state.error) return <ErrBox msg={state.error} />;
 
   const { catOcc, zoneOcc, highest, lowest } = state;
 
-  const catEntries  = Object.entries(catOcc?.trains  || {}).sort((a, b) => b[1] - a[1]);
+  const catEntries = Object.entries(catOcc?.trains || {}).sort((a, b) => b[1] - a[1]);
   const zoneEntries = Object.entries(zoneOcc?.trains || {}).sort((a, b) => b[1] - a[1]);
-  const maxCat      = Math.max(...catEntries.map(e => e[1]),  1);
-  const maxZone     = Math.max(...zoneEntries.map(e => e[1]), 1);
+  const maxCat = Math.max(...catEntries.map(e => e[1]), 1);
+  const maxZone = Math.max(...zoneEntries.map(e => e[1]), 1);
 
   const ht = highest?.train?.[0];
   const lt = lowest?.train?.[0];
@@ -803,7 +803,7 @@ const DemandOverviewTab = () => {
                 <span className="di-badge amber"><span className="di-dot amber" />{ht.OccupancyPercentage != null ? `${ht.OccupancyPercentage}%` : 'N/A'} Occ.</span>
                 <span className="di-badge gold">{ht.CoachCount} Coaches</span>
                 {ht.PunctualityScore != null && <span className="di-badge green">⏱ {ht.PunctualityScore}</span>}
-                {ht.DelayProbability != null && <span className="di-badge red">Delay {(ht.DelayProbability*100).toFixed(0)}%</span>}
+                {ht.DelayProbability != null && <span className="di-badge red">Delay {(ht.DelayProbability * 100).toFixed(0)}%</span>}
                 <span className={`di-badge ${ht.ElectrifiedRoute === 'Yes' ? 'green' : 'red'}`}>
                   {ht.ElectrifiedRoute === 'Yes' ? '⚡ Elec' : 'Non-elec'}
                 </span>
@@ -826,7 +826,7 @@ const DemandOverviewTab = () => {
                 <span className="di-badge green"><span className="di-dot green" />{lt.OccupancyPercentage != null ? `${lt.OccupancyPercentage}%` : 'N/A'} Occ.</span>
                 <span className="di-badge gold">{lt.CoachCount} Coaches</span>
                 {lt.PunctualityScore != null && <span className="di-badge gold">⏱ {lt.PunctualityScore}</span>}
-                {lt.DelayProbability != null && <span className="di-badge amber">Delay {(lt.DelayProbability*100).toFixed(0)}%</span>}
+                {lt.DelayProbability != null && <span className="di-badge amber">Delay {(lt.DelayProbability * 100).toFixed(0)}%</span>}
                 <span className={`di-badge ${lt.ElectrifiedRoute === 'Yes' ? 'green' : 'red'}`}>
                   {lt.ElectrifiedRoute === 'Yes' ? '⚡ Elec' : 'Non-elec'}
                 </span>
@@ -892,11 +892,11 @@ const DemandOverviewTab = () => {
    TRAIN LOOKUP TAB
 ───────────────────────────────────────────── */
 const TrainLookupTab = () => {
-  const [mode, setMode]       = useState('num');
-  const [query, setQuery]     = useState('');
-  const [result, setResult]   = useState(null);
+  const [mode, setMode] = useState('num');
+  const [query, setQuery] = useState('');
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
 
   const search = useCallback(async () => {
     const q = query.trim();
@@ -943,7 +943,7 @@ const TrainLookupTab = () => {
       </div>
 
       {loading && <Loader text="Querying occupancy" />}
-      {error   && <ErrBox msg={error} />}
+      {error && <ErrBox msg={error} />}
 
       {result && result.length > 0 && (
         <div className="di-card" style={{ animationDelay: '0s' }}>
@@ -968,7 +968,7 @@ const TrainLookupTab = () => {
                 {result.map((t, i) => {
                   const occ = t.OccupancyPercentage;
                   const badgeCls = occ == null ? 'red' : occ > 85 ? 'amber' : occ > 60 ? 'gold' : 'green';
-                  const dotCls   = occ == null ? 'red' : occ > 85 ? 'amber' : 'green';
+                  const dotCls = occ == null ? 'red' : occ > 85 ? 'amber' : 'green';
                   return (
                     <tr key={i}>
                       {mode === 'name' && <td className="mono">{t.TrainNo}</td>}
@@ -993,19 +993,35 @@ const TrainLookupTab = () => {
   );
 };
 
-const ZONES      = ['Western Railway', 'South Central Railway', 'Eastern Railway', 'Southern Railway', 'Northern Railway'];
-const CATEGORIES = ['Rajdhani', 'Intercity', 'Superfast', 'Humsafar', 'Duronto', 'Shatabdi', 'Garib Rath', 'Passenger', 'Express']
-
+const CATEGORIES = ['Sampark Kranti Express (SK)', 'Superfast Express (SF)',
+  'Rajdhani Express (RJDH)', 'Special Train (SPL)',
+  'Tejas Express (TEJ)', 'Suburban Local (EMU)', 'DEMU (DEMU)',
+  'Humsafar Express (HMSFR)', 'Double Decker Express (DD)',
+  'Duronto Express (DRNT)', 'Vande Bharat Express (VB)',
+  'Jan Shatabdi Express (JSTBD)', 'Shatabdi Express (SHTBD)',
+  'Mail Express (ME)', 'MEMU (MEMU)', 'Passenger (PASS)',
+  'Garib Rath Express (GR)', 'Intercity Express (IC)',
+  'Antyodaya Express (ANTY)']
+const ZONES = ['Northeast Frontier Railway (NFR)', 'North Central Railway (NCR)',
+  'Metro Railway Kolkata (MTPR)', 'East Coast Railway (ECoR)',
+  'South Central Railway (SCR)', 'Konkan Railway (KR)',
+  'South Eastern Railway (SER)', 'West Central Railway (WCR)',
+  'Southern Railway (SR)', 'Central Railway (CR)',
+  'Western Railway (WR)', 'Northern Railway (NR)',
+  'Eastern Railway (ER)', 'North Eastern Railway (NER)',
+  'South Coast Railway (SCoR)', 'North Western Railway (NWR)',
+  'East Central Railway (ECR)', 'South East Central Railway (SECR)',
+  'South Western Railway (SWR)'];
 /* ─────────────────────────────────────────────
    FLEET FILTER TAB
 ───────────────────────────────────────────── */
 const FleetFilterTab = () => {
   const [filterMode, setFilterMode] = useState('zone');
-  const [input, setInput]     = useState('');
-  const [trains, setTrains]   = useState(null);
+  const [input, setInput] = useState('');
+  const [trains, setTrains] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState(null);
-  const [page, setPage]       = useState(0);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(0);
   const PAGE = 15;
 
   const search = useCallback(async (val) => {
@@ -1034,10 +1050,10 @@ const FleetFilterTab = () => {
     setFilterMode(m); setTrains(null); setError(null); setInput('');
   };
 
-  const list  = trains?.trains || [];
+  const list = trains?.trains || [];
   const slice = list.slice(page * PAGE, (page + 1) * PAGE);
   const pages = Math.ceil(list.length / PAGE);
-  const opts  = filterMode === 'zone' ? ZONES : CATEGORIES;
+  const opts = filterMode === 'zone' ? ZONES : CATEGORIES;
 
   return (
     <div>
@@ -1064,7 +1080,7 @@ const FleetFilterTab = () => {
       </div>
 
       {loading && <Loader text="Filtering fleet" />}
-      {error   && <ErrBox msg={error} />}
+      {error && <ErrBox msg={error} />}
 
       {trains && (
         <div className="di-card" style={{ animationDelay: '0s' }}>
@@ -1092,12 +1108,12 @@ const FleetFilterTab = () => {
               </thead>
               <tbody>
                 {slice.map((t, i) => {
-                  const occ   = t.OccupancyPercentage;
+                  const occ = t.OccupancyPercentage;
                   const delay = t.DelayProbability;
                   const punct = t.PunctualityScore;
-                  const occColor   = occ   == null ? 'var(--text-3)' : occ   > 85 ? 'var(--sig-amber)' : occ > 60 ? 'var(--gold)' : 'var(--sig-green)';
-                  const delColor   = delay == null ? 'var(--text-3)' : delay  > 0.35 ? 'var(--sig-red)' : delay > 0.2 ? 'var(--sig-amber)' : 'var(--text-3)';
-                  const punctColor = punct == null ? 'var(--text-3)' : punct  > 85 ? 'var(--sig-green)' : punct > 70 ? 'var(--gold)' : 'var(--sig-red)';
+                  const occColor = occ == null ? 'var(--text-3)' : occ > 85 ? 'var(--sig-amber)' : occ > 60 ? 'var(--gold)' : 'var(--sig-green)';
+                  const delColor = delay == null ? 'var(--text-3)' : delay > 0.35 ? 'var(--sig-red)' : delay > 0.2 ? 'var(--sig-amber)' : 'var(--text-3)';
+                  const punctColor = punct == null ? 'var(--text-3)' : punct > 85 ? 'var(--sig-green)' : punct > 70 ? 'var(--gold)' : 'var(--sig-red)';
                   return (
                     <tr key={i}>
                       <td className="mono">{t.TrainNo}</td>
@@ -1151,9 +1167,9 @@ const FleetFilterTab = () => {
    INFRASTRUCTURE TAB
 ───────────────────────────────────────────── */
 const InfraTab = () => {
-  const [data, setData]       = useState({ avg: null, highCap: null, coach: null, range: null });
+  const [data, setData] = useState({ avg: null, highCap: null, coach: null, range: null });
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
@@ -1173,19 +1189,19 @@ const InfraTab = () => {
   }, []);
 
   if (loading) return <Loader text="Scanning infrastructure" />;
-  if (error)   return <ErrBox msg={error} />;
+  if (error) return <ErrBox msg={error} />;
 
   const { avg, highCap, coach, range } = data;
-  const stations  = (highCap?.stations || []).slice(0, showAll ? 99999 : 14);
-  const rangeList = (range?.stations   || []).slice(0, showAll ? 99999 : 24);
-  const maxPlat   = Math.max(...(highCap?.stations || []).map(s => s.PlatformCountAtOrigin), 1);
+  const stations = (highCap?.stations || []).slice(0, showAll ? 99999 : 14);
+  const rangeList = (range?.stations || []).slice(0, showAll ? 99999 : 24);
+  const maxPlat = Math.max(...(highCap?.stations || []).map(s => s.PlatformCountAtOrigin), 1);
 
   const kpis = [
-    { label: 'Avg Platforms',  value: avg?.average_platforms,  cls: '' },
-    { label: 'Min Coaches',    value: coach?.min_coaches,       cls: 'red' },
-    { label: 'Avg Coaches',    value: coach?.average_coaches,   cls: '' },
-    { label: 'Max Coaches',    value: coach?.max_coaches,       cls: 'green' },
-    { label: 'Total Stations', value: highCap?.count,           cls: '' },
+    { label: 'Avg Platforms', value: avg?.average_platforms, cls: '' },
+    { label: 'Min Coaches', value: coach?.min_coaches, cls: 'red' },
+    { label: 'Avg Coaches', value: coach?.average_coaches, cls: '' },
+    { label: 'Max Coaches', value: coach?.max_coaches, cls: 'green' },
+    { label: 'Total Stations', value: highCap?.count, cls: '' },
   ];
 
   return (
@@ -1227,12 +1243,16 @@ const InfraTab = () => {
 
       <div className="di-card" style={{ animationDelay: '.2s' }}>
         <div className="di-ghost">RANGE</div>
-        <div className="di-slabel" style={{ marginBottom: '1.2rem' }}>Min–Max Platform Spread</div>
+        <div className="di-slabel" style={{ marginBottom: '1.2rem' }}>Platform Count</div>
         <div className="di-range-grid">
           {rangeList.map((s, i) => (
             <div className="di-range-item" key={i}>
               <div className="ri-name">{s.StartingPoint}</div>
-              <div className="ri-val">{s.PlatformRange}</div>
+              <div className="ri-val">
+                {s.PlatformRange
+                  ? ((+s.PlatformRange.split('-')[0] + +s.PlatformRange.split('-')[1]) / 2)
+                  : '—'}
+              </div>
             </div>
           ))}
         </div>
@@ -1246,9 +1266,9 @@ const InfraTab = () => {
 ───────────────────────────────────────────── */
 const TABS = [
   { id: 'overview', label: 'Demand Overview' },
-  { id: 'lookup',   label: 'Train Lookup' },
-  { id: 'fleet',    label: 'Fleet Filter' },
-  { id: 'infra',    label: 'Infrastructure' },
+  { id: 'lookup', label: 'Train Lookup' },
+  { id: 'fleet', label: 'Fleet Filter' },
+  { id: 'infra', label: 'Infrastructure' },
 ];
 
 const DemandAndInfra = () => {
@@ -1279,9 +1299,9 @@ const DemandAndInfra = () => {
         </div>
 
         {tab === 'overview' && <DemandOverviewTab />}
-        {tab === 'lookup'   && <TrainLookupTab />}
-        {tab === 'fleet'    && <FleetFilterTab />}
-        {tab === 'infra'    && <InfraTab />}
+        {tab === 'lookup' && <TrainLookupTab />}
+        {tab === 'fleet' && <FleetFilterTab />}
+        {tab === 'infra' && <InfraTab />}
       </div>
     </Navbar>
   );
