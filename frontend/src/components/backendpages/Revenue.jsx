@@ -169,28 +169,21 @@ const CSS = `
     overflow: hidden;
   }
 
-  @media (min-width: 900px) {
+@media (min-width: 900px) {
     .filter-panel::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(255,255,255,0.006) 3px,
-        rgba(255,255,255,0.006) 4px
-      );
+      background: repeating-linear-gradient( ... );
       pointer-events: none;
       animation: scan 6s linear infinite;
     }
-
-    @keyframes scan {
-      0% { background-position: 0 0; }
-      100% { background-position: 0 100px; }
-    }
   }
 
+  @keyframes scan {            /* ✅ moved outside media query */
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100px; }
+  }
   .filter-title {
     font-family: var(--font-mono);
     font-size: 0.65rem;
@@ -556,24 +549,24 @@ const CSS = `
 const BASE = `${import.meta.env.VITE_API_URL}/api`;
 
 const CATEGORIES = ['Sampark Kranti Express (SK)', 'Superfast Express (SF)',
-       'Rajdhani Express (RJDH)', 'Special Train (SPL)',
-       'Tejas Express (TEJ)', 'Suburban Local (EMU)', 'DEMU (DEMU)',
-       'Humsafar Express (HMSFR)', 'Double Decker Express (DD)',
-       'Duronto Express (DRNT)', 'Vande Bharat Express (VB)',
-       'Jan Shatabdi Express (JSTBD)', 'Shatabdi Express (SHTBD)',
-       'Mail Express (ME)', 'MEMU (MEMU)', 'Passenger (PASS)',
-       'Garib Rath Express (GR)', 'Intercity Express (IC)',
-       'Antyodaya Express (ANTY)']
+  'Rajdhani Express (RJDH)', 'Special Train (SPL)',
+  'Tejas Express (TEJ)', 'Suburban Local (EMU)', 'DEMU (DEMU)',
+  'Humsafar Express (HMSFR)', 'Double Decker Express (DD)',
+  'Duronto Express (DRNT)', 'Vande Bharat Express (VB)',
+  'Jan Shatabdi Express (JSTBD)', 'Shatabdi Express (SHTBD)',
+  'Mail Express (ME)', 'MEMU (MEMU)', 'Passenger (PASS)',
+  'Garib Rath Express (GR)', 'Intercity Express (IC)',
+  'Antyodaya Express (ANTY)']
 const ZONES = ['Northeast Frontier Railway (NFR)', 'North Central Railway (NCR)',
-       'Metro Railway Kolkata (MTPR)', 'East Coast Railway (ECoR)',
-       'South Central Railway (SCR)', 'Konkan Railway (KR)',
-       'South Eastern Railway (SER)', 'West Central Railway (WCR)',
-       'Southern Railway (SR)', 'Central Railway (CR)',
-       'Western Railway (WR)', 'Northern Railway (NR)',
-       'Eastern Railway (ER)', 'North Eastern Railway (NER)',
-       'South Coast Railway (SCoR)', 'North Western Railway (NWR)',
-       'East Central Railway (ECR)', 'South East Central Railway (SECR)',
-       'South Western Railway (SWR)'];
+  'Metro Railway Kolkata (MTPR)', 'East Coast Railway (ECoR)',
+  'South Central Railway (SCR)', 'Konkan Railway (KR)',
+  'South Eastern Railway (SER)', 'West Central Railway (WCR)',
+  'Southern Railway (SR)', 'Central Railway (CR)',
+  'Western Railway (WR)', 'Northern Railway (NR)',
+  'Eastern Railway (ER)', 'North Eastern Railway (NER)',
+  'South Coast Railway (SCoR)', 'North Western Railway (NWR)',
+  'East Central Railway (ECR)', 'South East Central Railway (SECR)',
+  'South Western Railway (SWR)'];
 
 function formatINR(val) {
   if (val === null || val === undefined) return "—";
@@ -651,29 +644,29 @@ function ResultPanel({ state }) {
 
   if (mode === "zone") {
     items = [
-      { label: "Zone",        value: data.zone,                    isText: true },
-      { label: "Train Count", value: String(data.count),           isText: true },
+      { label: "Zone", value: data.zone, isText: true },
+      { label: "Train Count", value: String(data.count), isText: true },
       { label: "Avg Revenue", value: formatINR(data.average_revenue) },
     ];
   } else if (mode === "category") {
     items = [
-      { label: "Category",    value: data.category,                isText: true },
-      { label: "Train Count", value: String(data.count),           isText: true },
+      { label: "Category", value: data.category, isText: true },
+      { label: "Train Count", value: String(data.count), isText: true },
       { label: "Avg Revenue", value: formatINR(data.average_revenue) },
     ];
   } else if (mode === "number") {
     items = [
-      { label: "Train No",   value: String(data.TrainNo),          isText: true },
-      { label: "Train Name", value: data.TrainName,                isText: true },
-      { label: "Revenue",    value: formatINR(data.Revenue) },
-      { label: "Stops",      value: String(data.stops),            isText: true },
-      { label: "Distance",   value: `${data.distance?.toFixed(1)} km`, isText: true },
+      { label: "Train No", value: String(data.TrainNo), isText: true },
+      { label: "Train Name", value: data.TrainName, isText: true },
+      { label: "Revenue", value: formatINR(data.Revenue) },
+      { label: "Stops", value: String(data.stops), isText: true },
+      { label: "Distance", value: `${data.distance?.toFixed(1)} km`, isText: true },
     ];
   } else if (mode === "name") {
     items = [
-      { label: "Train Name",   value: data.train_name,             isText: true },
-      { label: "Matches",      value: String(data.count),          isText: true },
-      { label: "Net Revenue",  value: formatINR(data.net_revenue) },
+      { label: "Train Name", value: data.train_name, isText: true },
+      { label: "Matches", value: String(data.count), isText: true },
+      { label: "Net Revenue", value: formatINR(data.net_revenue) },
     ];
     if (data.trains && data.trains.length > 0) {
       tableRows = data.trains;
@@ -744,15 +737,15 @@ export default function Revenue() {
   const [kpi, setKpi] = useState({ highest: null, lowest: null, average: null, total: null, totalTrains: null });
   const [kpiLoading, setKpiLoading] = useState(true);
 
-  const [zone, setZone]           = useState("");
-  const [cat, setCat]             = useState("");
-  const [trainNum, setTrainNum]   = useState("");
+  const [zone, setZone] = useState("");
+  const [cat, setCat] = useState("");
+  const [trainNum, setTrainNum] = useState("");
   const [trainName, setTrainName] = useState("");
 
-  const [zoneResult, setZoneResult]   = useState({ status: "idle", data: null, mode: "zone" });
-  const [catResult, setCatResult]     = useState({ status: "idle", data: null, mode: "category" });
-  const [numResult, setNumResult]     = useState({ status: "idle", data: null, mode: "number" });
-  const [nameResult, setNameResult]   = useState({ status: "idle", data: null, mode: "name" });
+  const [zoneResult, setZoneResult] = useState({ status: "idle", data: null, mode: "zone" });
+  const [catResult, setCatResult] = useState({ status: "idle", data: null, mode: "category" });
+  const [numResult, setNumResult] = useState({ status: "idle", data: null, mode: "number" });
+  const [nameResult, setNameResult] = useState({ status: "idle", data: null, mode: "name" });
 
   // ── Load all four KPI tiles on mount ──
   useEffect(() => {
@@ -764,14 +757,14 @@ export default function Revenue() {
     ])
       .then(([h, l, a, t]) => {
         setKpi({
-          highest:     h.highest_revenue,
-          lowest:      l.lowest_revenue,
-          average:     a.average_revenue,
-          total:       t.total_revenue,
+          highest: h.highest_revenue,
+          lowest: l.lowest_revenue,
+          average: a.average_revenue,
+          total: t.total_revenue,
           totalTrains: t.total_trains,
         });
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setKpiLoading(false));
   }, []);
 
