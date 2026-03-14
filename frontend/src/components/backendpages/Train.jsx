@@ -3,9 +3,6 @@ import Navbar from "../../pages/Navbar"
 
 const API_URI = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "")
 
-/* ─────────────────────────────────────────────
-   CSS — PEAK EFFECTS EDITION
-───────────────────────────────────────────── */
 const TRAIN_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
@@ -18,12 +15,15 @@ const TRAIN_CSS = `
   @keyframes tw-float      { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
   @keyframes tw-scan       { 0%{top:0%;opacity:.6} 100%{top:100%;opacity:0} }
   @keyframes tw-badge-pop  { 0%{transform:scale(0.5);opacity:0} 70%{transform:scale(1.12)} 100%{transform:scale(1);opacity:1} }
-  @keyframes tw-number-in  { from{letter-spacing:.6em;opacity:0} to{letter-spacing:.25em;opacity:1} }
   @keyframes tw-bg-move    { 0%{background-position:0 0} 100%{background-position:60px 60px} }
   @keyframes tw-orb-drift  { 0%{transform:translate(0,0)} 33%{transform:translate(40px,-30px)} 66%{transform:translate(-20px,40px)} 100%{transform:translate(0,0)} }
-  @keyframes tw-line-expand { from{width:0;opacity:0} to{width:100%;opacity:1} }
   @keyframes tw-title-in   { from{clip-path:inset(0 100% 0 0)} to{clip-path:inset(0 0% 0 0)} }
   @keyframes tw-hero-rise  { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── MODAL KEYFRAMES ── */
+  @keyframes tw-modal-backdrop-in { from{opacity:0} to{opacity:1} }
+  @keyframes tw-modal-slide-in    { from{opacity:0;transform:translateY(40px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+  @keyframes tw-modal-spin        { to{transform:rotate(360deg)} }
 
   /* ── PAGE SHELL ── */
   .tw-page {
@@ -35,7 +35,6 @@ const TRAIN_CSS = `
     overflow-x: hidden;
   }
 
-  /* Grid texture */
   .tw-page::before {
     content: '';
     position: fixed;
@@ -50,7 +49,6 @@ const TRAIN_CSS = `
     mask-image: radial-gradient(ellipse 90% 90% at 50% 0%, black 30%, transparent 100%);
   }
 
-  /* Floating orbs — PC-only heavy effect */
   .tw-page::after {
     content: '';
     position: fixed;
@@ -92,9 +90,7 @@ const TRAIN_CSS = `
     flex: 1;
     max-width: 60px;
   }
-  .tw-header-eyebrow::after {
-    background: linear-gradient(270deg, var(--gold), transparent);
-  }
+  .tw-header-eyebrow::after { background: linear-gradient(270deg, var(--gold), transparent); }
 
   .tw-header h1 {
     font-family: 'Bebas Neue', 'Impact', sans-serif;
@@ -108,14 +104,12 @@ const TRAIN_CSS = `
   .tw-header h1 .tw-h1-accent {
     color: transparent;
     -webkit-text-stroke: 1px var(--gold);
-    text-stroke: 1px var(--gold);
     position: relative;
   }
   .tw-header h1 .tw-h1-accent::after {
     content: attr(data-text);
     position: absolute;
-    left: 0;
-    top: 0;
+    left: 0; top: 0;
     color: var(--gold);
     clip-path: inset(0 60% 0 0);
     animation: tw-title-in 2s cubic-bezier(.22,1,.36,1) 0.4s both;
@@ -130,493 +124,153 @@ const TRAIN_CSS = `
     font-family: 'Space Mono', monospace;
   }
 
-  /* Stat ticker below header */
-  .tw-ticker {
-    display: flex;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-    flex-wrap: wrap;
-  }
-  .tw-ticker-item {
-    display: flex;
-    align-items: baseline;
-    gap: .4rem;
-  }
-  .tw-ticker-val {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem;
-    color: var(--gold-light);
-    letter-spacing: .06em;
-    line-height: 1;
-  }
-  .tw-ticker-label {
-    font-size: .6rem;
-    color: var(--text-3);
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    font-family: 'Space Mono', monospace;
-  }
-  .tw-ticker-divider {
-    width: 1px;
-    height: 30px;
-    background: var(--glass-border);
-    align-self: center;
-  }
+  .tw-ticker { display: flex; gap: 1.5rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .tw-ticker-item { display: flex; align-items: baseline; gap: .4rem; }
+  .tw-ticker-val { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--gold-light); letter-spacing: .06em; line-height: 1; }
+  .tw-ticker-label { font-size: .6rem; color: var(--text-3); letter-spacing: .2em; text-transform: uppercase; font-family: 'Space Mono', monospace; }
+  .tw-ticker-divider { width: 1px; height: 30px; background: var(--glass-border); align-self: center; }
 
   /* ── RAIL DIVIDER ── */
-  .tw-rail-divider {
-    height: 24px;
-    margin: 1.5rem 0;
-    position: relative;
-    overflow: hidden;
-  }
+  .tw-rail-divider { height: 24px; margin: 1.5rem 0; position: relative; overflow: hidden; }
   .tw-rail-divider::before {
     content: '';
-    position: absolute;
-    top: 50%;
-    left: 0; right: 0;
-    height: 2px;
-    background: repeating-linear-gradient(90deg,
-      var(--glass-border) 0px,
-      var(--glass-border) 20px,
-      transparent 20px,
-      transparent 30px
-    );
+    position: absolute; top: 50%; left: 0; right: 0; height: 2px;
+    background: repeating-linear-gradient(90deg, var(--glass-border) 0px, var(--glass-border) 20px, transparent 20px, transparent 30px);
     transform: translateY(-50%);
     animation: tw-rail-flow 2s linear infinite;
   }
   .tw-rail-divider::after {
     content: '▶';
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--gold);
-    font-size: .7rem;
+    position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+    color: var(--gold); font-size: .7rem;
     animation: tw-float 2s ease-in-out infinite;
   }
 
   /* ── TABS ── */
-  .tw-tabs {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: .35rem;
-    margin-bottom: 2rem;
-    position: relative;
-  }
+  .tw-tabs { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: .35rem; margin-bottom: 2rem; }
 
   .tw-tab {
-    padding: .65rem .5rem;
-    border-radius: 10px;
-    font-family: 'Space Mono', monospace;
-    font-size: .6rem;
-    font-weight: 700;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    background: var(--ink-3);
-    border: 1px solid var(--glass-border);
-    cursor: pointer;
-    transition: all .25s cubic-bezier(.22,1,.36,1);
-    position: relative;
-    overflow: hidden;
-    white-space: nowrap;
-    text-align: center;
+    padding: .65rem .5rem; border-radius: 10px;
+    font-family: 'Space Mono', monospace; font-size: .6rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--text-3); background: var(--ink-3); border: 1px solid var(--glass-border);
+    cursor: pointer; transition: all .25s cubic-bezier(.22,1,.36,1);
+    position: relative; overflow: hidden; white-space: nowrap; text-align: center;
   }
-  .tw-tab::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(201,151,58,.1) 0%, transparent 60%);
-    opacity: 0;
-    transition: opacity .25s;
-  }
+  .tw-tab::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(201,151,58,.1) 0%, transparent 60%); opacity: 0; transition: opacity .25s; }
   .tw-tab:hover { color: var(--text-1); border-color: rgba(201,151,58,.3); transform: translateY(-2px); }
   .tw-tab:hover::before { opacity: 1; }
   .tw-tab.active {
-    background: var(--gold-pale);
-    color: var(--gold-light);
+    background: var(--gold-pale); color: var(--gold-light);
     border-color: rgba(201,151,58,.4);
     box-shadow: 0 0 30px rgba(201,151,58,.12), inset 0 1px 0 rgba(201,151,58,.2);
     transform: translateY(-2px);
     animation: tw-glow-pulse 3s ease-in-out infinite;
   }
-  .tw-tab.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 20%; right: 20%;
-    height: 2px;
-    background: var(--gold);
-    border-radius: 99px;
-    box-shadow: 0 0 8px var(--gold);
-  }
-
-  /* Shimmer on active tab */
-  .tw-tab.active::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 60px; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
-    animation: tw-shimmer 2.5s ease-in-out infinite;
-    opacity: 1;
-  }
+  .tw-tab.active::after { content: ''; position: absolute; bottom: 0; left: 20%; right: 20%; height: 2px; background: var(--gold); border-radius: 99px; box-shadow: 0 0 8px var(--gold); }
+  .tw-tab.active::before { content: ''; position: absolute; top: 0; left: 0; width: 60px; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); animation: tw-shimmer 2.5s ease-in-out infinite; opacity: 1; }
 
   /* ── SEARCH PANEL ── */
   .tw-search-panel {
-    background: var(--ink-2);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 1.6rem;
-    margin-bottom: 2rem;
-    position: relative;
-    overflow: hidden;
+    background: var(--ink-2); border: 1px solid var(--glass-border); border-radius: 20px;
+    padding: 1.6rem; margin-bottom: 2rem; position: relative; overflow: hidden;
     transition: border-color .3s, box-shadow .3s;
   }
-  .tw-search-panel:focus-within {
-    border-color: rgba(201,151,58,.35);
-    box-shadow: 0 0 60px rgba(201,151,58,.08), 0 20px 60px rgba(0,0,0,.4);
-  }
+  .tw-search-panel:focus-within { border-color: rgba(201,151,58,.35); box-shadow: 0 0 60px rgba(201,151,58,.08), 0 20px 60px rgba(0,0,0,.4); }
+  .tw-search-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent 0%, var(--gold) 40%, var(--gold-light) 60%, transparent 100%); opacity: .5; }
+  .tw-search-panel::after { content: ''; position: absolute; top: 0; right: 0; width: 60px; height: 60px; background: linear-gradient(225deg, rgba(201,151,58,.08) 0%, transparent 60%); pointer-events: none; }
 
-  /* Top shimmer line */
-  .tw-search-panel::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent 0%, var(--gold) 40%, var(--gold-light) 60%, transparent 100%);
-    opacity: .5;
-  }
-
-  /* Corner accent */
-  .tw-search-panel::after {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    width: 60px; height: 60px;
-    background:
-      linear-gradient(225deg, rgba(201,151,58,.08) 0%, transparent 60%);
-    pointer-events: none;
-  }
-
-  /* Scan line effect on panel — desktop only */
   @media (min-width: 900px) {
     .tw-search-panel .tw-scan-line {
-      position: absolute;
-      left: 0; right: 0;
-      height: 1px;
+      position: absolute; left: 0; right: 0; height: 1px;
       background: linear-gradient(90deg, transparent, rgba(201,151,58,.25), transparent);
-      animation: tw-scan 4s ease-in-out infinite;
-      pointer-events: none;
-      z-index: 10;
+      animation: tw-scan 4s ease-in-out infinite; pointer-events: none; z-index: 10;
     }
   }
 
   .tw-search-row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end; }
-
   .tw-field { flex: 1; min-width: 160px; display: flex; flex-direction: column; gap: .4rem; }
-  .tw-field label {
-    font-family: 'Space Mono', monospace;
-    font-size: .58rem;
-    font-weight: 700;
-    letter-spacing: .3em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    display: flex;
-    align-items: center;
-    gap: .4rem;
-  }
-  .tw-field label::before {
-    content: '';
-    display: block;
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: var(--gold);
-    box-shadow: 0 0 6px var(--gold);
-    flex-shrink: 0;
-  }
-
-  .tw-field input, .tw-field select {
-    background: var(--ink-3);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    color: var(--text-1);
-    font-family: 'DM Sans', sans-serif;
-    font-size: .92rem;
-    padding: .78rem 1.1rem;
-    outline: none;
-    transition: border-color .25s, box-shadow .25s, background .25s;
-    width: 100%;
-    -webkit-appearance: none;
-  }
-  .tw-field select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23c9973a'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    padding-right: 2.5rem;
-    cursor: pointer;
-  }
+  .tw-field label { font-family: 'Space Mono', monospace; font-size: .58rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; color: var(--text-3); display: flex; align-items: center; gap: .4rem; }
+  .tw-field label::before { content: ''; display: block; width: 4px; height: 4px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 6px var(--gold); flex-shrink: 0; }
+  .tw-field input, .tw-field select { background: var(--ink-3); border: 1px solid var(--glass-border); border-radius: 12px; color: var(--text-1); font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: .78rem 1.1rem; outline: none; transition: border-color .25s, box-shadow .25s, background .25s; width: 100%; -webkit-appearance: none; }
+  .tw-field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23c9973a'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; cursor: pointer; }
   .tw-field input::placeholder { color: var(--text-3); }
-  .tw-field input:focus, .tw-field select:focus {
-    border-color: rgba(201,151,58,.5);
-    background: var(--ink-2);
-    box-shadow:
-      0 0 0 3px rgba(201,151,58,.08),
-      0 0 30px rgba(201,151,58,.06),
-      inset 0 1px 0 rgba(201,151,58,.08);
-  }
+  .tw-field input:focus, .tw-field select:focus { border-color: rgba(201,151,58,.5); background: var(--ink-2); box-shadow: 0 0 0 3px rgba(201,151,58,.08), 0 0 30px rgba(201,151,58,.06), inset 0 1px 0 rgba(201,151,58,.08); }
   .tw-field select option { background: var(--ink-3); }
 
-  /* ── SEARCH BUTTON ── */
   .tw-search-btn {
-    padding: .78rem 2rem;
-    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
-    color: var(--ink);
-    border: none;
-    border-radius: 12px;
-    font-family: 'Space Mono', monospace;
-    font-size: .72rem;
-    font-weight: 700;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all .25s cubic-bezier(.22,1,.36,1);
-    white-space: nowrap;
-    flex-shrink: 0;
-    height: fit-content;
-    position: relative;
-    overflow: hidden;
+    padding: .78rem 2rem; background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    color: var(--ink); border: none; border-radius: 12px;
+    font-family: 'Space Mono', monospace; font-size: .72rem; font-weight: 700;
+    letter-spacing: .2em; text-transform: uppercase; cursor: pointer;
+    transition: all .25s cubic-bezier(.22,1,.36,1); white-space: nowrap;
+    flex-shrink: 0; height: fit-content; position: relative; overflow: hidden;
     box-shadow: 0 4px 20px rgba(201,151,58,.25);
   }
-  .tw-search-btn::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
-    transition: left .4s ease;
-  }
-  .tw-search-btn:hover {
-    box-shadow: 0 8px 40px rgba(201,151,58,.5), 0 0 60px rgba(201,151,58,.2);
-    transform: translateY(-2px) scale(1.02);
-  }
+  .tw-search-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent); transition: left .4s ease; }
+  .tw-search-btn:hover { box-shadow: 0 8px 40px rgba(201,151,58,.5), 0 0 60px rgba(201,151,58,.2); transform: translateY(-2px) scale(1.02); }
   .tw-search-btn:hover::before { left: 100%; }
   .tw-search-btn:active { transform: translateY(0) scale(.98); }
   .tw-search-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
 
-  /* ── ERROR ── */
-  .tw-error-msg {
-    margin-top: 1rem;
-    background: rgba(224,82,82,.06);
-    border: 1px solid rgba(224,82,82,.25);
-    border-radius: 12px;
-    padding: .9rem 1.2rem;
-    color: var(--sig-red);
-    font-family: 'Space Mono', monospace;
-    font-size: .72rem;
-    letter-spacing: .08em;
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-  }
+  .tw-error-msg { margin-top: 1rem; background: rgba(224,82,82,.06); border: 1px solid rgba(224,82,82,.25); border-radius: 12px; padding: .9rem 1.2rem; color: var(--sig-red); font-family: 'Space Mono', monospace; font-size: .72rem; letter-spacing: .08em; display: flex; align-items: center; gap: .6rem; }
   .tw-error-msg::before { content: '⚠'; font-size: .9rem; flex-shrink: 0; }
 
-  /* ── STATES ── */
   .tw-state { text-align: center; padding: 5rem 2rem; }
-  .tw-state-icon {
-    font-size: 3rem;
-    display: block;
-    margin-bottom: 1.2rem;
-    animation: tw-float 3s ease-in-out infinite;
-    filter: grayscale(.5);
-  }
-  .tw-state-msg {
-    font-family: 'Space Mono', monospace;
-    color: var(--text-3);
-    font-size: .72rem;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-  }
+  .tw-state-icon { font-size: 3rem; display: block; margin-bottom: 1.2rem; animation: tw-float 3s ease-in-out infinite; filter: grayscale(.5); }
+  .tw-state-msg { font-family: 'Space Mono', monospace; color: var(--text-3); font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; }
 
-  /* ── SPINNER ── */
-  .tw-loader {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 5rem 2rem;
-    gap: 2rem;
-  }
+  .tw-loader { display: flex; flex-direction: column; align-items: center; padding: 5rem 2rem; gap: 2rem; }
   .tw-spinner-wrap { position: relative; width: 60px; height: 60px; }
-  .tw-spinner {
-    width: 60px; height: 60px;
-    border: 2px solid var(--glass-border);
-    border-top-color: var(--gold);
-    border-right-color: var(--gold-light);
-    border-radius: 50%;
-    animation: tw-spin .7s linear infinite;
-  }
-  .tw-spinner-inner {
-    position: absolute;
-    top: 10px; left: 10px;
-    right: 10px; bottom: 10px;
-    border: 1px solid rgba(201,151,58,.2);
-    border-bottom-color: var(--gold);
-    border-radius: 50%;
-    animation: tw-spin .5s linear infinite reverse;
-  }
-  .tw-spinner-dot {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--gold);
-    box-shadow: 0 0 12px var(--gold);
-    transform: translate(-50%,-50%);
-  }
-  .tw-loader-text {
-    font-family: 'Space Mono', monospace;
-    font-size: .65rem;
-    color: var(--text-3);
-    letter-spacing: .35em;
-    text-transform: uppercase;
-    animation: tw-float 1.5s ease-in-out infinite;
-  }
+  .tw-spinner { width: 60px; height: 60px; border: 2px solid var(--glass-border); border-top-color: var(--gold); border-right-color: var(--gold-light); border-radius: 50%; animation: tw-spin .7s linear infinite; }
+  .tw-spinner-inner { position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px; border: 1px solid rgba(201,151,58,.2); border-bottom-color: var(--gold); border-radius: 50%; animation: tw-spin .5s linear infinite reverse; }
+  .tw-spinner-dot { position: absolute; top: 50%; left: 50%; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 12px var(--gold); transform: translate(-50%,-50%); }
+  .tw-loader-text { font-family: 'Space Mono', monospace; font-size: .65rem; color: var(--text-3); letter-spacing: .35em; text-transform: uppercase; animation: tw-float 1.5s ease-in-out infinite; }
 
-  /* ── RESULTS HEADER ── */
-  .tw-results-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-    padding-bottom: .75rem;
-    border-bottom: 1px solid var(--glass-border);
-  }
-  .tw-results-label {
-    font-family: 'Space Mono', monospace;
-    font-size: .62rem;
-    font-weight: 700;
-    letter-spacing: .35em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-  }
-  .tw-results-label::before {
-    content: '';
-    width: 16px; height: 2px;
-    background: var(--gold);
-    border-radius: 99px;
-  }
-  .tw-results-count {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
-    color: var(--gold-light);
-    letter-spacing: .1em;
-    background: var(--gold-pale);
-    padding: .15rem .9rem;
-    border-radius: 99px;
-    border: 1px solid rgba(201,151,58,.25);
-    box-shadow: 0 0 20px rgba(201,151,58,.1);
-    animation: tw-badge-pop .4s cubic-bezier(.22,1,.36,1) both;
-  }
+  .tw-results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: .75rem; border-bottom: 1px solid var(--glass-border); }
+  .tw-results-label { font-family: 'Space Mono', monospace; font-size: .62rem; font-weight: 700; letter-spacing: .35em; text-transform: uppercase; color: var(--text-3); display: flex; align-items: center; gap: .6rem; }
+  .tw-results-label::before { content: ''; width: 16px; height: 2px; background: var(--gold); border-radius: 99px; }
+  .tw-results-count { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--gold-light); letter-spacing: .1em; background: var(--gold-pale); padding: .15rem .9rem; border-radius: 99px; border: 1px solid rgba(201,151,58,.25); box-shadow: 0 0 20px rgba(201,151,58,.1); animation: tw-badge-pop .4s cubic-bezier(.22,1,.36,1) both; }
 
-  /* ── CARDS GRID ── */
-  .tw-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
+  .tw-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
   @media (min-width: 560px) { .tw-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (min-width: 900px) { .tw-grid { grid-template-columns: repeat(3, 1fr); } }
 
   /* ── TRAIN CARD ── */
   .tw-card {
-    background: var(--ink-2);
-    border: 1px solid var(--glass-border);
-    border-radius: 18px;
-    padding: 1.4rem;
-    position: relative;
-    overflow: hidden;
+    background: var(--ink-2); border: 1px solid var(--glass-border); border-radius: 18px;
+    padding: 1.4rem; position: relative; overflow: hidden;
     transition: border-color .3s, box-shadow .35s, transform .35s;
     animation: tw-card-in .5s cubic-bezier(.22,1,.36,1) both;
-    cursor: default;
+    cursor: pointer;  /* pointer so user knows it's clickable */
   }
-  .tw-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent 0%, rgba(201,151,58,.5) 50%, transparent 100%);
-    opacity: 0;
-    transition: opacity .3s;
-  }
-
-  /* Shimmer on hover — desktop */
+  .tw-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(201,151,58,.5) 50%, transparent 100%); opacity: 0; transition: opacity .3s; }
   @media (min-width: 900px) {
-    .tw-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 50%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.025), transparent);
-      transition: left .6s ease;
-      pointer-events: none;
-    }
+    .tw-card::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.025), transparent); transition: left .6s ease; pointer-events: none; }
     .tw-card:hover::after { left: 150%; }
-    .tw-card:hover {
-      border-color: rgba(201,151,58,.35);
-      box-shadow:
-        0 20px 60px rgba(0,0,0,.5),
-        0 0 0 1px rgba(201,151,58,.08),
-        0 0 40px rgba(201,151,58,.06);
-      transform: translateY(-4px) scale(1.01);
-    }
+    .tw-card:hover { border-color: rgba(201,151,58,.35); box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(201,151,58,.08), 0 0 40px rgba(201,151,58,.06); transform: translateY(-4px) scale(1.01); }
   }
-
   .tw-card:hover::before { opacity: 1; }
 
-  /* Left accent bar */
-  .tw-card-rail {
-    position: absolute;
-    left: 0; top: 15%; bottom: 15%;
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    background: linear-gradient(to bottom, var(--gold), var(--gold-light));
-    box-shadow: 0 0 12px var(--gold-glow);
-    opacity: 0;
-    transition: opacity .3s;
+  /* Clickable hint badge */
+  .tw-card-click-hint {
+    position: absolute; top: .7rem; right: .7rem;
+    font-family: 'Space Mono', monospace; font-size: .48rem;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--gold); background: var(--gold-pale);
+    border: 1px solid rgba(201,151,58,.2);
+    padding: .18rem .5rem; border-radius: 4px;
+    opacity: 0; transition: opacity .25s;
+    pointer-events: none;
   }
+  .tw-card:hover .tw-card-click-hint { opacity: 1; }
+
+  .tw-card-rail { position: absolute; left: 0; top: 15%; bottom: 15%; width: 3px; border-radius: 0 3px 3px 0; background: linear-gradient(to bottom, var(--gold), var(--gold-light)); box-shadow: 0 0 12px var(--gold-glow); opacity: 0; transition: opacity .3s; }
   .tw-card:hover .tw-card-rail { opacity: 1; }
 
-  .tw-card-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-    gap: .5rem;
-  }
-
-  .tw-train-no {
-    font-family: 'Space Mono', monospace;
-    font-size: .62rem;
-    font-weight: 700;
-    letter-spacing: .2em;
-    color: var(--gold);
-    background: var(--gold-pale);
-    border: 1px solid rgba(201,151,58,.2);
-    padding: .28rem .7rem;
-    border-radius: 6px;
-  }
-
-  .tw-cat-badge {
-    font-family: 'Space Mono', monospace;
-    font-size: .55rem;
-    font-weight: 700;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    padding: .28rem .7rem;
-    border-radius: 6px;
-    white-space: nowrap;
-  }
+  .tw-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; gap: .5rem; }
+  .tw-train-no { font-family: 'Space Mono', monospace; font-size: .62rem; font-weight: 700; letter-spacing: .2em; color: var(--gold); background: var(--gold-pale); border: 1px solid rgba(201,151,58,.2); padding: .28rem .7rem; border-radius: 6px; }
+  .tw-cat-badge { font-family: 'Space Mono', monospace; font-size: .55rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: .28rem .7rem; border-radius: 6px; white-space: nowrap; }
   .tw-cat-badge.rajdhani  { background:rgba(201,151,58,.12); color:var(--gold-light);  border:1px solid rgba(201,151,58,.2); }
   .tw-cat-badge.express   { background:rgba(61,184,122,.08);  color:var(--sig-green);   border:1px solid rgba(61,184,122,.2); }
   .tw-cat-badge.mail      { background:rgba(212,136,58,.08);  color:var(--sig-amber);   border:1px solid rgba(212,136,58,.2); }
@@ -624,410 +278,78 @@ const TRAIN_CSS = `
   .tw-cat-badge.superfast { background:rgba(201,151,58,.12);  color:var(--gold-light);  border:1px solid rgba(201,151,58,.2); }
   .tw-cat-badge.default   { background:rgba(255,255,255,.04); color:var(--text-2);      border:1px solid var(--glass-border); }
 
-  .tw-train-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.3rem;
-    font-weight: 400;
-    color: var(--text-1);
-    letter-spacing: .06em;
-    line-height: 1.1;
-    margin-bottom: .25rem;
-    text-transform: uppercase;
-  }
-  .tw-train-zone {
-    font-family: 'Space Mono', monospace;
-    font-size: .6rem;
-    color: var(--text-3);
-    letter-spacing: .12em;
-    text-transform: uppercase;
-  }
+  .tw-train-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; font-weight: 400; color: var(--text-1); letter-spacing: .06em; line-height: 1.1; margin-bottom: .25rem; text-transform: uppercase; }
+  .tw-train-zone { font-family: 'Space Mono', monospace; font-size: .6rem; color: var(--text-3); letter-spacing: .12em; text-transform: uppercase; }
 
-  /* ── ROUTE STRIP ── */
-  .tw-route {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    margin: 1rem 0;
-    padding: .85rem 1rem;
-    background: var(--ink-3);
-    border-radius: 12px;
-    border: 1px solid var(--glass-border);
-    position: relative;
-    overflow: hidden;
-  }
-  .tw-route::after {
-    content: '';
-    position: absolute;
-    top: 50%; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(201,151,58,.15), transparent);
-    transform: translateY(-50%);
-    pointer-events: none;
-  }
-
+  .tw-route { display: flex; align-items: center; gap: .5rem; margin: 1rem 0; padding: .85rem 1rem; background: var(--ink-3); border-radius: 12px; border: 1px solid var(--glass-border); position: relative; overflow: hidden; }
+  .tw-route::after { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,151,58,.15), transparent); transform: translateY(-50%); pointer-events: none; }
   .tw-route-city { flex: 1; min-width: 0; }
-  .tw-route-city-name {
-    font-family: 'DM Sans', sans-serif;
-    font-size: .82rem;
-    font-weight: 600;
-    color: var(--text-1);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .tw-route-city-label {
-    font-family: 'Space Mono', monospace;
-    font-size: .55rem;
-    color: var(--text-3);
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    margin-top: .1rem;
-  }
+  .tw-route-city-name { font-family: 'DM Sans', sans-serif; font-size: .82rem; font-weight: 600; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tw-route-city-label { font-family: 'Space Mono', monospace; font-size: .55rem; color: var(--text-3); letter-spacing: .18em; text-transform: uppercase; margin-top: .1rem; }
+  .tw-route-mid { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; position: relative; z-index: 1; }
+  .tw-route-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px var(--gold-glow); }
+  .tw-route-line { width: 36px; height: 2px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 99px; opacity: .5; position: relative; }
+  .tw-route-line::after { content: '›'; position: absolute; right: -5px; top: -9px; font-size: .75rem; color: var(--gold); opacity: .8; }
 
-  .tw-route-mid {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 1;
-  }
-  .tw-route-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--gold);
-    box-shadow: 0 0 8px var(--gold-glow);
-  }
-  .tw-route-line {
-    width: 36px; height: 2px;
-    background: linear-gradient(90deg, var(--gold), var(--gold-light));
-    border-radius: 99px;
-    opacity: .5;
-    position: relative;
-  }
-  .tw-route-line::after {
-    content: '›';
-    position: absolute;
-    right: -5px;
-    top: -9px;
-    font-size: .75rem;
-    color: var(--gold);
-    opacity: .8;
-  }
-
-  /* ── META CHIPS ── */
   .tw-meta-row { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .75rem; }
-  .tw-meta-chip {
-    display: flex;
-    align-items: center;
-    gap: .3rem;
-    font-family: 'Space Mono', monospace;
-    font-size: .6rem;
-    color: var(--text-2);
-    background: var(--ink-3);
-    border: 1px solid var(--glass-border);
-    padding: .28rem .65rem;
-    border-radius: 7px;
-    letter-spacing: .04em;
-    white-space: nowrap;
-    transition: border-color .2s, color .2s;
-  }
-  .tw-card:hover .tw-meta-chip {
-    border-color: rgba(201,151,58,.15);
-    color: var(--text-1);
-  }
+  .tw-meta-chip { display: flex; align-items: center; gap: .3rem; font-family: 'Space Mono', monospace; font-size: .6rem; color: var(--text-2); background: var(--ink-3); border: 1px solid var(--glass-border); padding: .28rem .65rem; border-radius: 7px; letter-spacing: .04em; white-space: nowrap; transition: border-color .2s, color .2s; }
+  .tw-card:hover .tw-meta-chip { border-color: rgba(201,151,58,.15); color: var(--text-1); }
   .tw-meta-chip-icon { font-size: .65rem; opacity: .7; }
 
-  /* ── RATING BAR ── */
-  .tw-rating-bar {
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-    margin-top: .9rem;
-  }
-  .tw-rating-track {
-    flex: 1;
-    height: 3px;
-    background: var(--ink-4);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-  .tw-rating-fill {
-    height: 100%;
-    border-radius: 99px;
-    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%);
-    box-shadow: 0 0 8px rgba(201,151,58,.4);
-    transition: width .8s cubic-bezier(.22,1,.36,1);
-  }
-  .tw-rating-label {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: .9rem;
-    color: var(--gold-light);
-    letter-spacing: .08em;
-    flex-shrink: 0;
-  }
+  .tw-rating-bar { display: flex; align-items: center; gap: .6rem; margin-top: .9rem; }
+  .tw-rating-track { flex: 1; height: 3px; background: var(--ink-4); border-radius: 99px; overflow: hidden; }
+  .tw-rating-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%); box-shadow: 0 0 8px rgba(201,151,58,.4); transition: width .8s cubic-bezier(.22,1,.36,1); }
+  .tw-rating-label { font-family: 'Bebas Neue', sans-serif; font-size: .9rem; color: var(--gold-light); letter-spacing: .08em; flex-shrink: 0; }
 
-  /* ── SINGLE TRAIN DETAIL ── */
-  .tw-single-card {
-    background: var(--ink-2);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 2rem;
-    position: relative;
-    overflow: hidden;
-    animation: tw-card-in .5s cubic-bezier(.22,1,.36,1) both;
-  }
-  .tw-single-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold-light) 70%, transparent);
-    box-shadow: 0 0 20px var(--gold-glow);
-  }
-  .tw-single-card::after {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(201,151,58,.05) 0%, transparent 70%);
-    pointer-events: none;
-  }
+  /* single card */
+  .tw-single-card { background: var(--ink-2); border: 1px solid var(--glass-border); border-radius: 20px; padding: 2rem; position: relative; overflow: hidden; animation: tw-card-in .5s cubic-bezier(.22,1,.36,1) both; }
+  .tw-single-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold-light) 70%, transparent); box-shadow: 0 0 20px var(--gold-glow); }
+  .tw-single-card::after { content: ''; position: absolute; top: 0; right: 0; width: 200px; height: 200px; background: radial-gradient(circle, rgba(201,151,58,.05) 0%, transparent 70%); pointer-events: none; }
+  .tw-single-hero-name { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem, 6vw, 3.5rem); font-weight: 400; color: var(--text-1); letter-spacing: .06em; text-transform: uppercase; line-height: 1; margin-bottom: .25rem; }
 
-  .tw-single-hero-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(2rem, 6vw, 3.5rem);
-    font-weight: 400;
-    color: var(--text-1);
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    line-height: 1;
-    margin-bottom: .25rem;
-  }
-
-  /* ── INFO GRID ── */
-  .tw-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: .65rem;
-    margin-top: 1.5rem;
-  }
-  .tw-info-tile {
-    background: var(--ink-3);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: .9rem 1rem;
-    transition: border-color .25s, box-shadow .25s, transform .25s;
-    position: relative;
-    overflow: hidden;
-  }
-  .tw-info-tile::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(201,151,58,.2), transparent);
-    opacity: 0;
-    transition: opacity .25s;
-  }
-  @media (min-width: 900px) {
-    .tw-info-tile:hover {
-      border-color: rgba(201,151,58,.3);
-      box-shadow: 0 8px 24px rgba(0,0,0,.3);
-      transform: translateY(-2px);
-    }
-    .tw-info-tile:hover::before { opacity: 1; }
-  }
-  .tw-info-tile-label {
-    font-family: 'Space Mono', monospace;
-    font-size: .55rem;
-    font-weight: 700;
-    letter-spacing: .25em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    margin-bottom: .35rem;
-  }
-  .tw-info-tile-val {
-    font-family: 'DM Sans', sans-serif;
-    font-size: .95rem;
-    font-weight: 600;
-    color: var(--text-1);
-    line-height: 1.2;
-  }
+  .tw-info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .65rem; margin-top: 1.5rem; }
+  .tw-info-tile { background: var(--ink-3); border: 1px solid var(--glass-border); border-radius: 12px; padding: .9rem 1rem; transition: border-color .25s, box-shadow .25s, transform .25s; position: relative; overflow: hidden; }
+  .tw-info-tile::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,151,58,.2), transparent); opacity: 0; transition: opacity .25s; }
+  @media (min-width: 900px) { .tw-info-tile:hover { border-color: rgba(201,151,58,.3); box-shadow: 0 8px 24px rgba(0,0,0,.3); transform: translateY(-2px); } .tw-info-tile:hover::before { opacity: 1; } }
+  .tw-info-tile-label { font-family: 'Space Mono', monospace; font-size: .55rem; font-weight: 700; letter-spacing: .25em; text-transform: uppercase; color: var(--text-3); margin-bottom: .35rem; }
+  .tw-info-tile-val { font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 600; color: var(--text-1); line-height: 1.2; }
   .tw-info-tile-val.gold  { color: var(--gold-light); }
   .tw-info-tile-val.green { color: var(--sig-green); }
   .tw-info-tile-val.amber { color: var(--sig-amber); }
 
-  /* ── STOPS ── */
-  .tw-stops-list {
-    display: flex;
-    gap: .35rem;
-    flex-wrap: wrap;
-    margin-top: 1rem;
-  }
-  .tw-stop-chip {
-    font-family: 'Space Mono', monospace;
-    font-size: .6rem;
-    background: var(--ink-3);
-    border: 1px solid var(--glass-border);
-    color: var(--text-2);
-    padding: .25rem .6rem;
-    border-radius: 5px;
-    letter-spacing: .04em;
-    transition: border-color .2s, color .2s;
-  }
-  .tw-stop-chip.first, .tw-stop-chip.last {
-    border-color: rgba(201,151,58,.25);
-    color: var(--gold-light);
-    background: var(--gold-pale);
-    box-shadow: 0 0 10px rgba(201,151,58,.1);
-  }
+  .tw-stops-list { display: flex; gap: .35rem; flex-wrap: wrap; margin-top: 1rem; }
+  .tw-stop-chip { font-family: 'Space Mono', monospace; font-size: .6rem; background: var(--ink-3); border: 1px solid var(--glass-border); color: var(--text-2); padding: .25rem .6rem; border-radius: 5px; letter-spacing: .04em; transition: border-color .2s, color .2s; }
+  .tw-stop-chip.first, .tw-stop-chip.last { border-color: rgba(201,151,58,.25); color: var(--gold-light); background: var(--gold-pale); box-shadow: 0 0 10px rgba(201,151,58,.1); }
 
-  /* ── COMPARE ── */
-  .tw-compare-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  @media (min-width: 700px) {
-    .tw-compare-grid {
-      grid-template-columns: 1fr auto 1fr;
-      gap: 1.2rem;
-      align-items: start;
-    }
-  }
-
-  .tw-compare-vs {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem 0;
-    gap: .5rem;
-  }
-  @media (min-width: 700px) {
-    .tw-compare-vs {
-      flex-direction: column;
-      padding-top: 3rem;
-    }
-  }
-  .tw-compare-vs-label {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem;
-    color: var(--gold);
-    opacity: .5;
-    letter-spacing: .15em;
-  }
-  .tw-compare-vs-line {
-    background: linear-gradient(to bottom, transparent, var(--glass-border), transparent);
-    flex-shrink: 0;
-  }
-  @media (max-width: 699px) {
-    .tw-compare-vs-line { width: 40px; height: 1px; }
-  }
-  @media (min-width: 700px) {
-    .tw-compare-vs-line { width: 1px; height: 40px; }
-  }
-
-  .tw-compare-card {
-    background: var(--ink-2);
-    border: 1px solid var(--glass-border);
-    border-radius: 18px;
-    padding: 1.5rem;
-    position: relative;
-    overflow: hidden;
-    animation: tw-card-in .4s cubic-bezier(.22,1,.36,1) both;
-    transition: border-color .3s, box-shadow .3s;
-  }
-  .tw-compare-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(201,151,58,.35), transparent);
-  }
-  @media (min-width: 900px) {
-    .tw-compare-card:hover {
-      border-color: rgba(201,151,58,.25);
-      box-shadow: 0 16px 50px rgba(0,0,0,.4);
-    }
-  }
-
+  /* compare */
+  .tw-compare-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+  @media (min-width: 700px) { .tw-compare-grid { grid-template-columns: 1fr auto 1fr; gap: 1.2rem; align-items: start; } }
+  .tw-compare-vs { display: flex; align-items: center; justify-content: center; padding: 1rem 0; gap: .5rem; }
+  @media (min-width: 700px) { .tw-compare-vs { flex-direction: column; padding-top: 3rem; } }
+  .tw-compare-vs-label { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--gold); opacity: .5; letter-spacing: .15em; }
+  .tw-compare-vs-line { background: linear-gradient(to bottom, transparent, var(--glass-border), transparent); flex-shrink: 0; }
+  @media (max-width: 699px) { .tw-compare-vs-line { width: 40px; height: 1px; } }
+  @media (min-width: 700px) { .tw-compare-vs-line { width: 1px; height: 40px; } }
+  .tw-compare-card { background: var(--ink-2); border: 1px solid var(--glass-border); border-radius: 18px; padding: 1.5rem; position: relative; overflow: hidden; animation: tw-card-in .4s cubic-bezier(.22,1,.36,1) both; transition: border-color .3s, box-shadow .3s; }
+  .tw-compare-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,151,58,.35), transparent); }
+  @media (min-width: 900px) { .tw-compare-card:hover { border-color: rgba(201,151,58,.25); box-shadow: 0 16px 50px rgba(0,0,0,.4); } }
   .tw-compare-table { width: 100%; border-collapse: collapse; }
   .tw-compare-table tr { border-bottom: 1px solid var(--glass-border); }
   .tw-compare-table tr:last-child { border-bottom: none; }
-  .tw-compare-table td {
-    padding: .6rem 0;
-    font-size: .82rem;
-    vertical-align: top;
-  }
-  .tw-compare-table td:first-child {
-    font-family: 'Space Mono', monospace;
-    color: var(--text-3);
-    font-size: .58rem;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    width: 40%;
-    padding-right: .8rem;
-  }
-  .tw-compare-table td:last-child {
-    color: var(--text-1);
-    font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
-  }
+  .tw-compare-table td { padding: .6rem 0; font-size: .82rem; vertical-align: top; }
+  .tw-compare-table td:first-child { font-family: 'Space Mono', monospace; color: var(--text-3); font-size: .58rem; letter-spacing: .18em; text-transform: uppercase; width: 40%; padding-right: .8rem; }
+  .tw-compare-table td:last-child { color: var(--text-1); font-weight: 500; font-family: 'DM Sans', sans-serif; }
 
-  /* ── ROUTE MAP ── */
-  .tw-route-map-card {
-    background: var(--ink-2);
-    border: 1px solid var(--glass-border);
-    border-radius: 18px;
-    padding: 1.4rem;
-    margin-bottom: .75rem;
-    position: relative;
-    overflow: hidden;
-    animation: tw-card-in .4s cubic-bezier(.22,1,.36,1) both;
-    transition: border-color .3s, box-shadow .3s;
-  }
+  .tw-route-map-card { background: var(--ink-2); border: 1px solid var(--glass-border); border-radius: 18px; padding: 1.4rem; margin-bottom: .75rem; position: relative; overflow: hidden; animation: tw-card-in .4s cubic-bezier(.22,1,.36,1) both; transition: border-color .3s, box-shadow .3s; }
+  @media (min-width: 900px) { .tw-route-map-card:hover { border-color: rgba(201,151,58,.25); box-shadow: 0 12px 40px rgba(0,0,0,.35); } }
+  .tw-route-map-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,151,58,.2), transparent); }
+  .tw-route-map-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: .5rem; }
+
   @media (min-width: 900px) {
-    .tw-route-map-card:hover {
-      border-color: rgba(201,151,58,.25);
-      box-shadow: 0 12px 40px rgba(0,0,0,.35);
-    }
-  }
-  .tw-route-map-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(201,151,58,.2), transparent);
-  }
-  .tw-route-map-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: .5rem;
+    .tw-card .tw-card-bg-num { position: absolute; right: -10px; bottom: -15px; font-family: 'Bebas Neue', sans-serif; font-size: 6rem; color: rgba(201,151,58,.04); letter-spacing: -.02em; line-height: 1; pointer-events: none; user-select: none; transition: color .3s, transform .3s; }
+    .tw-card:hover .tw-card-bg-num { color: rgba(201,151,58,.08); transform: scale(1.05); }
   }
 
-  /* ── DECORATIVE NUMBER OVERLAY (desktop) ── */
-  @media (min-width: 900px) {
-    .tw-card .tw-card-bg-num {
-      position: absolute;
-      right: -10px;
-      bottom: -15px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 6rem;
-      color: rgba(201,151,58,.04);
-      letter-spacing: -.02em;
-      line-height: 1;
-      pointer-events: none;
-      user-select: none;
-      transition: color .3s, transform .3s;
-    }
-    .tw-card:hover .tw-card-bg-num {
-      color: rgba(201,151,58,.08);
-      transform: scale(1.05);
-    }
-  }
-
-  /* ── RESPONSIVE TOUCH ── */
   @media (max-width: 559px) {
     .tw-page { padding: 1.2rem .75rem 4rem; }
     .tw-header h1 { font-size: 3.2rem; }
@@ -1037,11 +359,276 @@ const TRAIN_CSS = `
     .tw-card { border-radius: 14px; }
     .tw-info-grid { grid-template-columns: repeat(2, 1fr); }
   }
+
+  /* ═══════════════════════════════════════════
+     TRAIN DETAIL MODAL
+  ═══════════════════════════════════════════ */
+
+  .tw-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-end;        /* bottom sheet on mobile */
+    justify-content: center;
+    animation: tw-modal-backdrop-in .25s ease both;
+    padding: 0;
+  }
+
+  @media (min-width: 700px) {
+    .tw-modal-backdrop {
+      align-items: center;        /* centered on desktop */
+      padding: 1.5rem;
+    }
+  }
+
+  .tw-modal {
+    background: var(--ink-2);
+    border: 1px solid var(--glass-border);
+    border-top: 2px solid var(--gold);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 860px;
+    max-height: 92vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    animation: tw-modal-slide-in .35s cubic-bezier(.22,1,.36,1) both;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(201,151,58,.3) transparent;
+  }
+
+  @media (min-width: 700px) {
+    .tw-modal {
+      border-radius: 24px;
+      border-top: 1px solid var(--glass-border);
+      max-height: 88vh;
+    }
+  }
+
+  .tw-modal::-webkit-scrollbar { width: 4px; }
+  .tw-modal::-webkit-scrollbar-thumb { background: rgba(201,151,58,.3); border-radius: 99px; }
+  .tw-modal::-webkit-scrollbar-track { background: transparent; }
+
+  /* Glow top border */
+  .tw-modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold-light) 70%, transparent);
+    box-shadow: 0 0 30px rgba(201,151,58,.4);
+    border-radius: 24px 24px 0 0;
+  }
+
+  /* Radial glow top-right */
+  .tw-modal::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(201,151,58,.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── MODAL HEADER ── */
+  .tw-modal-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--ink-2);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 1.4rem 1.6rem 1.2rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  /* Mobile drag handle */
+  .tw-modal-handle {
+    position: absolute;
+    top: .6rem; left: 50%;
+    transform: translateX(-50%);
+    width: 36px; height: 4px;
+    background: var(--glass-border);
+    border-radius: 99px;
+  }
+  @media (min-width: 700px) { .tw-modal-handle { display: none; } }
+
+  .tw-modal-title-block { display: flex; flex-direction: column; gap: .3rem; padding-top: .6rem; }
+
+  .tw-modal-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: .58rem;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .tw-modal-eyebrow::before { content: ''; display: inline-block; width: 12px; height: 1px; background: var(--gold); }
+
+  .tw-modal-train-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 7vw, 3.2rem);
+    line-height: 1;
+    letter-spacing: .04em;
+    color: var(--text-1);
+    text-transform: uppercase;
+  }
+
+  .tw-modal-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-top: .3rem;
+  }
+
+  .tw-modal-close {
+    background: var(--ink-3);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-2);
+    font-size: 1.2rem;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background .2s, color .2s, border-color .2s;
+    margin-top: .4rem;
+  }
+  .tw-modal-close:hover { background: rgba(224,82,82,.1); border-color: rgba(224,82,82,.3); color: var(--sig-red); }
+
+  /* ── MODAL BODY ── */
+  .tw-modal-body { padding: 1.6rem; }
+
+  /* ── MODAL ROUTE HERO ── */
+  .tw-modal-route {
+    background: var(--ink-3);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.4rem 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.6rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .tw-modal-route::after { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,151,58,.12), transparent); transform: translateY(-50%); pointer-events: none; }
+
+  .tw-modal-route-city { flex: 1; min-width: 0; }
+  .tw-modal-route-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    color: var(--text-1);
+    letter-spacing: .05em;
+    line-height: 1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tw-modal-route-label { font-family: 'Space Mono', monospace; font-size: .55rem; color: var(--text-3); letter-spacing: .2em; text-transform: uppercase; margin-top: .25rem; }
+
+  .tw-modal-route-mid { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+  .tw-modal-route-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 12px var(--gold-glow); }
+  .tw-modal-route-line { width: 48px; height: 2px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 99px; opacity: .6; }
+
+  /* ── MODAL SECTION LABEL ── */
+  .tw-modal-section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: .85rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+  .tw-modal-section-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(201,151,58,.3), transparent); }
+
+  /* ── MODAL STATS GRID — large tiles ── */
+  .tw-modal-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: .75rem;
+    margin-bottom: 1.6rem;
+  }
+  @media (min-width: 480px) { .tw-modal-stats { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 700px) { .tw-modal-stats { grid-template-columns: repeat(4, 1fr); } }
+
+  .tw-modal-stat {
+    background: var(--ink-3);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 1rem 1.1rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .25s, transform .25s;
+  }
+  .tw-modal-stat::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,151,58,.2), transparent); opacity: 0; transition: opacity .25s; }
+  @media (min-width: 900px) { .tw-modal-stat:hover { border-color: rgba(201,151,58,.3); transform: translateY(-2px); } .tw-modal-stat:hover::before { opacity: 1; } }
+
+  .tw-modal-stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: .55rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: .4rem;
+  }
+  .tw-modal-stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    line-height: 1;
+    letter-spacing: .04em;
+    color: var(--text-1);
+  }
+  .tw-modal-stat-val.gold  { color: var(--gold-light); }
+  .tw-modal-stat-val.green { color: var(--sig-green); }
+  .tw-modal-stat-val.amber { color: var(--sig-amber); }
+  .tw-modal-stat-val.red   { color: var(--sig-red); }
+  .tw-modal-stat-val.blue  { color: #60a5fa; }
+  .tw-modal-stat-sub { font-family: 'Space Mono', monospace; font-size: .52rem; color: var(--text-3); margin-top: .2rem; }
+
+  /* ── MODAL STOPS ── */
+  .tw-modal-stops-wrap { margin-bottom: 1.6rem; }
+  .tw-modal-stops-list { display: flex; gap: .4rem; flex-wrap: wrap; }
+  .tw-modal-stop {
+    font-family: 'Space Mono', monospace;
+    font-size: .65rem;
+    background: var(--ink-3);
+    border: 1px solid var(--glass-border);
+    color: var(--text-2);
+    padding: .3rem .75rem;
+    border-radius: 6px;
+    letter-spacing: .04em;
+    transition: border-color .2s, color .2s;
+  }
+  .tw-modal-stop.first, .tw-modal-stop.last { border-color: rgba(201,151,58,.3); color: var(--gold-light); background: var(--gold-pale); box-shadow: 0 0 12px rgba(201,151,58,.1); font-weight: 700; }
+
+  /* ── MODAL LOADING / ERROR ── */
+  .tw-modal-loading {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 4rem 2rem; gap: 1.5rem;
+  }
+  .tw-modal-spinner {
+    width: 48px; height: 48px;
+    border: 2px solid var(--glass-border);
+    border-top-color: var(--gold);
+    border-right-color: var(--gold-light);
+    border-radius: 50%;
+    animation: tw-modal-spin .7s linear infinite;
+  }
+  .tw-modal-loading-text { font-family: 'Space Mono', monospace; font-size: .65rem; color: var(--text-3); letter-spacing: .25em; text-transform: uppercase; }
+  .tw-modal-error { padding: 2rem 1.6rem; }
+  .tw-modal-error-msg { background: rgba(224,82,82,.06); border: 1px solid rgba(224,82,82,.25); border-radius: 12px; padding: 1rem 1.2rem; color: var(--sig-red); font-family: 'Space Mono', monospace; font-size: .72rem; display: flex; align-items: center; gap: .6rem; }
 `
 
-/* ─────────────────────────────────────────────
-   CONSTANTS — unchanged
-───────────────────────────────────────────── */
 const MODES = [
   { id: "number",    label: "By Number"   },
   { id: "name",      label: "By Name"     },
@@ -1061,6 +648,7 @@ const CATEGORIES = ['Sampark Kranti Express (SK)', 'Superfast Express (SF)',
        'Mail Express (ME)', 'MEMU (MEMU)', 'Passenger (PASS)',
        'Garib Rath Express (GR)', 'Intercity Express (IC)',
        'Antyodaya Express (ANTY)']
+
 const ZONES = ['Northeast Frontier Railway (NFR)', 'North Central Railway (NCR)',
        'Metro Railway Kolkata (MTPR)', 'East Coast Railway (ECoR)',
        'South Central Railway (SCR)', 'Konkan Railway (KR)',
@@ -1070,8 +658,9 @@ const ZONES = ['Northeast Frontier Railway (NFR)', 'North Central Railway (NCR)'
        'Eastern Railway (ER)', 'North Eastern Railway (NER)',
        'South Coast Railway (SCoR)', 'North Western Railway (NWR)',
        'East Central Railway (ECR)', 'South East Central Railway (SECR)',
-       'South Western Railway (SWR)'];
-const ROUTE_TYPES =  ['Delta', 'River Valley', 'Sea Coast', 'Mountain', 'Plateau',
+       'South Western Railway (SWR)']
+
+const ROUTE_TYPES = ['Delta', 'River Valley', 'Sea Coast', 'Mountain', 'Plateau',
        'Desert', 'Coastal', 'Island', 'Plain', 'Forest']
 
 function catClass(cat = "") {
@@ -1091,14 +680,183 @@ function parseStops(stops) {
 }
 
 /* ─────────────────────────────────────────────
-   COMPONENTS
+   TRAIN DETAIL MODAL
 ───────────────────────────────────────────── */
-function TrainCard({ train, idx }) {
+function TrainDetailModal({ trainNo, onClose }) {
+  const [status, setStatus] = useState("loading") // loading | success | error
+  const [train, setTrain]   = useState(null)
+  const [errMsg, setErrMsg] = useState("")
+
+  // Lock body scroll when open
+  useEffect(() => {
+    document.body.style.overflow = "hidden"
+    return () => { document.body.style.overflow = "" }
+  }, [])
+
+  // Fetch by train number
+  useEffect(() => {
+    if (!trainNo) return
+    setStatus("loading")
+    fetch(`${API_URI}/api/train/number?number=${encodeURIComponent(trainNo)}`, { credentials: "include" })
+      .then(r => r.json().then(d => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (!ok) throw new Error(d.error || "Not found")
+        setTrain(d)
+        setStatus("success")
+      })
+      .catch(e => { setErrMsg(e.message || "Failed to load"); setStatus("error") })
+  }, [trainNo])
+
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") onClose() }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [onClose])
+
+  const stops = train ? parseStops(train.stops) : []
+
+  const stats = train ? [
+    { label: "Train No",     val: train.TrainNo,           color: "gold" },
+    { label: "Distance",     val: train.Distance_km != null ? `${train.Distance_km} km` : null },
+    { label: "Travel Time",  val: train.TravelTime_hr != null ? `${train.TravelTime_hr} hrs` : null },
+    { label: "Avg Speed",    val: train.AverageSpeed_kmph != null ? `${train.AverageSpeed_kmph} km/h` : null },
+    { label: "Coaches",      val: train.CoachCount },
+    { label: "AC %",         val: train.ACPercentageCoaches != null ? `${train.ACPercentageCoaches}%` : null },
+    { label: "Occupancy",    val: train.OccupancyPercentage != null ? `${train.OccupancyPercentage}%` : null },
+    { label: "Punctuality",  val: train.PunctualityScore != null ? `${train.PunctualityScore}/100` : null, color: "green" },
+    { label: "Delay Prob",   val: train.DelayProbability != null ? `${(train.DelayProbability * 100).toFixed(1)}%` : null, color: "amber" },
+    { label: "Rating",       val: train.Rating != null ? `★ ${train.Rating.toFixed(1)}` : null, color: "gold" },
+    { label: "Fare Range",   val: train.ApproxFareRange_INR },
+    { label: "Revenue",      val: train.Revenue_INR != null ? `₹${(train.Revenue_INR / 1e5).toFixed(1)}L` : null, color: "blue" },
+    { label: "Maintenance",  val: train.MaintenanceScore != null ? `${train.MaintenanceScore}/100` : null },
+    { label: "Peak ×",       val: train.PeakSeasonMultiplier },
+    { label: "Year",         val: train.YearIntroduced },
+    { label: "Electrified",  val: train.ElectrifiedRoute },
+    { label: "Days Running", val: train.DaysRunning },
+    { label: "Route Type",   val: train.RouteType },
+    { label: "Avg Stops",    val: train.AvgStops },
+    { label: "Remarks",      val: train.Remarks },
+  ].filter(s => s.val != null && s.val !== "") : []
+
+  return (
+    <div className="tw-modal-backdrop" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+      <div className="tw-modal" role="dialog" aria-modal="true">
+
+        {/* ── HEADER ── */}
+        <div className="tw-modal-header">
+          <div className="tw-modal-handle" />
+          <div className="tw-modal-title-block">
+            <div className="tw-modal-eyebrow">Train Detail</div>
+            {status === "success" && train ? (
+              <>
+                <div className="tw-modal-train-name">{train.TrainName || "Unknown Train"}</div>
+                <div className="tw-modal-badges">
+                  <span className="tw-train-no">#{train.TrainNo}</span>
+                  {train.TrainCategory && (
+                    <span className={`tw-cat-badge ${catClass(train.TrainCategory)}`}>{train.TrainCategory}</span>
+                  )}
+                  {train.RailwayZone && (
+                    <span className="tw-train-zone" style={{ alignSelf: "center" }}>⬡ {train.RailwayZone}</span>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="tw-modal-train-name" style={{ color: "var(--text-3)" }}>
+                #{trainNo}
+              </div>
+            )}
+          </div>
+          <button className="tw-modal-close" onClick={onClose} aria-label="Close">✕</button>
+        </div>
+
+        {/* ── BODY ── */}
+        {status === "loading" && (
+          <div className="tw-modal-loading">
+            <div className="tw-modal-spinner" />
+            <div className="tw-modal-loading-text">Fetching train data…</div>
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="tw-modal-error">
+            <div className="tw-modal-error-msg">⚠ {errMsg}</div>
+          </div>
+        )}
+
+        {status === "success" && train && (
+          <div className="tw-modal-body">
+
+            {/* Route hero */}
+            {(train.StartingPoint || train.FinalDestination) && (
+              <div className="tw-modal-route">
+                <div className="tw-modal-route-city">
+                  <div className="tw-modal-route-name">{train.StartingPoint || "—"}</div>
+                  <div className="tw-modal-route-label">Origin</div>
+                </div>
+                <div className="tw-modal-route-mid">
+                  <div className="tw-modal-route-dot" />
+                  <div className="tw-modal-route-line" />
+                  <div className="tw-modal-route-dot" />
+                </div>
+                <div className="tw-modal-route-city" style={{ textAlign: "right" }}>
+                  <div className="tw-modal-route-name">{train.FinalDestination || "—"}</div>
+                  <div className="tw-modal-route-label">Destination</div>
+                </div>
+              </div>
+            )}
+
+            {/* Stats grid */}
+            <div className="tw-modal-section-label">Performance & Details</div>
+            <div className="tw-modal-stats">
+              {stats.map(s => (
+                <div className="tw-modal-stat" key={s.label}>
+                  <div className="tw-modal-stat-label">{s.label}</div>
+                  <div className={`tw-modal-stat-val${s.color ? ` ${s.color}` : ""}`}>
+                    {String(s.val)}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Stops */}
+            {stops.length > 0 && (
+              <div className="tw-modal-stops-wrap">
+                <div className="tw-modal-section-label">Route Stops ({stops.length})</div>
+                <div className="tw-modal-stops-list">
+                  {stops.map((s, i, arr) => (
+                    <span
+                      key={i}
+                      className={`tw-modal-stop${i === 0 ? " first" : i === arr.length - 1 ? " last" : ""}`}
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+
+      </div>
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   TRAIN CARD  (now clickable)
+───────────────────────────────────────────── */
+function TrainCard({ train, idx, onCardClick }) {
   const t = train
   return (
-    <div className="tw-card" style={{ animationDelay: `${idx * 0.06}s` }}>
+    <div
+      className="tw-card"
+      style={{ animationDelay: `${idx * 0.06}s` }}
+      onClick={() => onCardClick(t.TrainNo)}
+    >
       <div className="tw-card-rail" />
-      {/* Decorative bg number */}
+      <span className="tw-card-click-hint">View Details</span>
       <span className="tw-card-bg-num">{t.TrainNo}</span>
 
       <div className="tw-card-top">
@@ -1148,6 +906,9 @@ function TrainCard({ train, idx }) {
   )
 }
 
+/* ─────────────────────────────────────────────
+   InfoGrid / CompareCard (unchanged)
+───────────────────────────────────────────── */
 function InfoGrid({ train }) {
   const fields = [
     { label: "Train No",          val: train.TrainNo },
@@ -1254,13 +1015,14 @@ const Train = () => {
   const [cmpMode, setCmpMode] = useState("number")
   const [mapName, setMapName] = useState("")
 
+  // Modal state
+  const [modalTrainNo, setModalTrainNo] = useState(null)
+
   const reset      = () => { setResult(null); setError(null) }
   const switchMode = (m) => { setMode(m); reset() }
 
-  /* ── ALL API CALLS UNCHANGED ── */
   const fetchData = useCallback(async (path) => {
     const url = `${API_URI}${path}`
-    console.log("[Train] fetching:", url)
     setLoading(true); setError(null); setResult(null)
     try {
       const res  = await fetch(url, { credentials: "include" })
@@ -1362,21 +1124,11 @@ const Train = () => {
             </div>
             <div className="tw-field">
               <label>Train A {cmpMode === "number" ? "(No.)" : "(Name)"}</label>
-              <input
-                placeholder={cmpMode === "number" ? "77836" : "Madurai Intercity"}
-                value={cmp1}
-                onChange={e => setCmp1(e.target.value)}
-                onKeyDown={onKeyDown}
-              />
+              <input placeholder={cmpMode === "number" ? "77836" : "Madurai Intercity"} value={cmp1} onChange={e => setCmp1(e.target.value)} onKeyDown={onKeyDown} />
             </div>
             <div className="tw-field">
               <label>Train B {cmpMode === "number" ? "(No.)" : "(Name)"}</label>
-              <input
-                placeholder={cmpMode === "number" ? "14331" : "Jaipur Rajadhani"}
-                value={cmp2}
-                onChange={e => setCmp2(e.target.value)}
-                onKeyDown={onKeyDown}
-              />
+              <input placeholder={cmpMode === "number" ? "14331" : "Jaipur Rajadhani"} value={cmp2} onChange={e => setCmp2(e.target.value)} onKeyDown={onKeyDown} />
             </div>
           </>
         )
@@ -1384,13 +1136,7 @@ const Train = () => {
         return (
           <div className="tw-field">
             <label>Train Name <span style={{ opacity:.5, fontWeight:400, fontFamily:"DM Sans" }}>(optional)</span></label>
-            <input
-              type="text"
-              placeholder="Leave blank for all routes…"
-              value={mapName}
-              onChange={e => setMapName(e.target.value)}
-              onKeyDown={onKeyDown}
-            />
+            <input type="text" placeholder="Leave blank for all routes…" value={mapName} onChange={e => setMapName(e.target.value)} onKeyDown={onKeyDown} />
           </div>
         )
       default: return null
@@ -1410,7 +1156,7 @@ const Train = () => {
               <span className="tw-results-count">{result.count ?? result.trains.length} trains</span>
             </div>
             <div className="tw-grid">
-              {result.trains.map((t, i) => <TrainCard key={i} train={t} idx={i} />)}
+              {result.trains.map((t, i) => <TrainCard key={i} train={t} idx={i} onCardClick={setModalTrainNo} />)}
             </div>
           </>
         )
@@ -1419,9 +1165,7 @@ const Train = () => {
       if (result.train1 && result.train2) {
         return (
           <>
-            <div className="tw-results-header">
-              <span className="tw-results-label">Comparison</span>
-            </div>
+            <div className="tw-results-header"><span className="tw-results-label">Comparison</span></div>
             <div className="tw-compare-grid">
               <CompareCard train={result.train1} label="A" />
               <div className="tw-compare-vs">
@@ -1435,13 +1179,11 @@ const Train = () => {
         )
       }
 
-      // Single train
+      // Single train — also clickable
       return (
         <>
-          <div className="tw-results-header">
-            <span className="tw-results-label">Train Detail</span>
-          </div>
-          <div className="tw-single-card">
+          <div className="tw-results-header"><span className="tw-results-label">Train Detail</span></div>
+          <div className="tw-single-card" style={{ cursor: "pointer" }} onClick={() => setModalTrainNo(result.TrainNo)}>
             <div className="tw-card-top">
               <span className="tw-train-no">#{result.TrainNo || "—"}</span>
               {result.TrainCategory && (
@@ -1479,7 +1221,12 @@ const Train = () => {
           {trains.map((r, i) => {
             const stops = parseStops(r.stops)
             return (
-              <div className="tw-route-map-card" key={i} style={{ animationDelay: `${i * 0.05}s` }}>
+              <div
+                className="tw-route-map-card"
+                key={i}
+                style={{ animationDelay: `${i * 0.05}s`, cursor: r.TrainNo ? "pointer" : "default" }}
+                onClick={() => r.TrainNo && setModalTrainNo(r.TrainNo)}
+              >
                 <div className="tw-route-map-header">
                   <div>
                     <div className="tw-train-name" style={{ fontSize: "1.1rem", marginBottom: ".15rem" }}>{r.TrainName || `Route ${i + 1}`}</div>
@@ -1512,7 +1259,7 @@ const Train = () => {
           <span className="tw-results-count">{result.count ?? trains.length} trains</span>
         </div>
         <div className="tw-grid">
-          {trains.map((t, i) => <TrainCard key={i} train={t} idx={i} />)}
+          {trains.map((t, i) => <TrainCard key={i} train={t} idx={i} onCardClick={setModalTrainNo} />)}
         </div>
       </>
     )
@@ -1532,37 +1279,20 @@ const Train = () => {
             <span className="tw-h1-accent" data-text="Explorer">Explorer</span>
           </h1>
           <div className="tw-header-sub">Search · Compare · Inspect · Discover</div>
-
           <div className="tw-ticker">
-            <div className="tw-ticker-item">
-              <span className="tw-ticker-val">49000+</span>
-              <span className="tw-ticker-label">Trains</span>
-            </div>
+            <div className="tw-ticker-item"><span className="tw-ticker-val">49000+</span><span className="tw-ticker-label">Trains</span></div>
             <div className="tw-ticker-divider" />
-            <div className="tw-ticker-item">
-              <span className="tw-ticker-val">7</span>
-              <span className="tw-ticker-label">Search Modes</span>
-            </div>
+            <div className="tw-ticker-item"><span className="tw-ticker-val">7</span><span className="tw-ticker-label">Search Modes</span></div>
             <div className="tw-ticker-divider" />
-            <div className="tw-ticker-item">
-              <span className="tw-ticker-val">18+</span>
-              <span className="tw-ticker-label">Zones</span>
-            </div>
-            <div className="tw-ticker-item">
-              <span className="tw-ticker-val">18+</span>
-              <span className="tw-ticker-label">Categories</span>
-            </div>
+            <div className="tw-ticker-item"><span className="tw-ticker-val">18+</span><span className="tw-ticker-label">Zones</span></div>
+            <div className="tw-ticker-item"><span className="tw-ticker-val">18+</span><span className="tw-ticker-label">Categories</span></div>
           </div>
         </div>
 
         {/* TABS */}
         <div className="tw-tabs">
           {MODES.map(m => (
-            <button
-              key={m.id}
-              className={`tw-tab${mode === m.id ? " active" : ""}`}
-              onClick={() => switchMode(m.id)}
-            >
+            <button key={m.id} className={`tw-tab${mode === m.id ? " active" : ""}`} onClick={() => switchMode(m.id)}>
               {m.label}
             </button>
           ))}
@@ -1593,16 +1323,24 @@ const Train = () => {
             </div>
             <div className="tw-loader-text">Fetching train data…</div>
           </div>
-        ) : result ? (
-          renderResult()
-        ) : !error ? (
-          <div className="tw-state">
-            <span className="tw-state-icon">🚂</span>
-            <div className="tw-state-msg">Select a mode and enter your query</div>
-          </div>
-        ) : null}
+        ) : result ? renderResult()
+          : !error ? (
+            <div className="tw-state">
+              <span className="tw-state-icon">🚂</span>
+              <div className="tw-state-msg">Select a mode and enter your query</div>
+            </div>
+          ) : null}
 
       </div>
+
+      {/* MODAL — rendered outside tw-page so it overlays everything */}
+      {modalTrainNo && (
+        <TrainDetailModal
+          trainNo={modalTrainNo}
+          onClose={() => setModalTrainNo(null)}
+        />
+      )}
+
     </Navbar>
   )
 }
