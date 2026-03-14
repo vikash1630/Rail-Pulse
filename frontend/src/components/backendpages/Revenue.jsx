@@ -553,7 +553,7 @@ const CSS = `
   }
 `;
 
-const BASE = "http://localhost:5000/api/train";
+const BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 const CATEGORIES = ['Sampark Kranti Express (SK)', 'Superfast Express (SF)',
        'Rajdhani Express (RJDH)', 'Special Train (SPL)',
