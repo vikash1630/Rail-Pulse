@@ -1,118 +1,152 @@
-
-
 import pandas as pd
 from src.models.getTrainDetails import fetch_all_trains
 
 trains = fetch_all_trains()
-status = 200
 
 
+# -----------------------------------
+# Helper — sanitize NaN → None
+# so jsonify produces valid JSON
+# -----------------------------------
+def _clean(df):
+    return df.where(pd.notna(df), other=None)
+
+
+# -----------------------------------
+# Occupancy by Train Number
+# -----------------------------------
 def get_Train_occupancy_perentage_by_num(num):
-    train = trains[trains["TrainNo"]==num]
+    try:
+        num = int(num)          # query params are strings; TrainNo column is int64
+    except (ValueError, TypeError):
+        return {"error": "Train number must be a valid integer"}, 400
+
+    train = trains[trains["TrainNo"] == num]
     if train.empty:
-        return {"error": "No train Found"}, 400
-    train = train[["TrainName","OccupancyPercentage","CoachCount"]]
-    train = train.to_dict(orient="records")
-    return {
-        "train": train
-    }, 200
+        return {"error": "No train found for given number"}, 400
+
+    result = _clean(train[["TrainName", "OccupancyPercentage", "CoachCount"]])
+    return {"train": result.to_dict(orient="records")}, 200
 
 
+# -----------------------------------
+# Occupancy by Train Name
+# -----------------------------------
 def get_Train_occupancy_perentage_by_name(name):
-    train = trains[trains["TrainName"]==name]
+    train = trains[trains["TrainName"] == name]
     if train.empty:
-        return {"error": "No train Found"}, 400
-    train = train[["TrainNo","TrainName","OccupancyPercentage","CoachCount"]]
-    train = train.to_dict(orient="records")
-    return {
-        "train": train
-    }, 200
+        return {"error": "No train found for given name"}, 400
+
+    result = _clean(train[["TrainNo", "TrainName", "OccupancyPercentage", "CoachCount"]])
+    return {"train": result.to_dict(orient="records")}, 200
 
 
-
+# -----------------------------------
+# Highest Occupancy Train
+# -----------------------------------
 def get_Highest_Occupancy_Train():
-    train = trains[(trains["OccupancyPercentage"]==trains["OccupancyPercentage"].max())]
-    if train.empty:
-        return {"error": "Train Not Found"}, 400
-    train = train.to_dict(orient="records")
-    return {
-        "train": train
-    }, 200
+    # dropna first so NaN rows don't become the max
+    valid = trains.dropna(subset=["OccupancyPercentage"])
+    if valid.empty:
+        return {"error": "No occupancy data available"}, 400
 
+    max_occ = valid["OccupancyPercentage"].max()
+    train = valid[valid["OccupancyPercentage"] == max_occ]
+
+    cols = ["TrainNo", "TrainName", "TrainCategory", "OccupancyPercentage", "CoachCount"]
+    result = _clean(train[cols])
+    return {"train": result.to_dict(orient="records")}, 200
+
+
+# -----------------------------------
+# Lowest Occupancy Train
+# -----------------------------------
 def get_Lowest_Occupancy_Train():
-    train = trains[(trains["OccupancyPercentage"]==trains["OccupancyPercentage"].min())]
-    if train.empty:
-        return {"error": "Train Not Found"}, 400
-    train = train.to_dict(orient="records")
-    return {
-        "train": train
-    }, 200
+    valid = trains.dropna(subset=["OccupancyPercentage"])
+    if valid.empty:
+        return {"error": "No occupancy data available"}, 400
 
+    min_occ = valid["OccupancyPercentage"].min()
+    train = valid[valid["OccupancyPercentage"] == min_occ]
+
+    cols = ["TrainNo", "TrainName", "TrainCategory", "OccupancyPercentage", "CoachCount"]
+    result = _clean(train[cols])
+    return {"train": result.to_dict(orient="records")}, 200
+
+
+# -----------------------------------
+# Zone-wise Train List
+# -----------------------------------
 def get_ZoneVise_Trains(zone):
-    zones = trains["RailwayZone"].unique()
-
-    train = {}
+    zones = trains["RailwayZone"].dropna().unique()
 
     if zone not in zones:
-        return {"error": "Zone Not Found"}, 400
+        return {"error": f"Zone '{zone}' not found. Available zones: {list(zones)}"}, 400
 
-    for i in zones:
-        train[i] = trains[trains["RailwayZone"] == i]
-
-    res = train[zone]
+    res = trains[trains["RailwayZone"] == zone]
     if res.empty:
-        return {"error": "No Train Found For give Zone"}, 400
-    data = res.to_dict(orient="records")
+        return {"error": "No trains found for given zone"}, 400
 
-    return {
-        "count": len(data),
-        "trains": data
-    }, 200
+    data = _clean(res).to_dict(orient="records")
+    return {"count": len(data), "trains": data}, 200
 
+
+# -----------------------------------
+# Category-wise Train List
+# -----------------------------------
 def get_CategoryVise_Trains(cat):
-    cats = trains["TrainCategory"].unique()
-    
+    cats = trains["TrainCategory"].dropna().unique()
+
     if cat not in cats:
-        return {"error": "Category Not Found"}, 400
+        return {"error": f"Category '{cat}' not found. Available categories: {list(cats)}"}, 400
 
-    train = {}
-
-    for i in cats:
-        train[i] = trains[trains["TrainCategory"] == i]
-
-    res = train[cat]
+    res = trains[trains["TrainCategory"] == cat]
     if res.empty:
-        return {"error": "No Train Found For give Zone"}, 400
-    data = res.to_dict(orient="records")
+        return {"error": "No trains found for given category"}, 400
 
-    return {
-        "count": len(data),
-        "trains": data
-    }, 200
+    data = _clean(res).to_dict(orient="records")
+    return {"count": len(data), "trains": data}, 200
 
 
+# -----------------------------------
+# Category-wise Average Occupancy
+# -----------------------------------
 def get_CategoryVise_TrainsOccupancy():
-    res = trains.groupby("TrainCategory")["OccupancyPercentage"].mean()
-    if res.empty:
-        return {"error": "Invalid Entry"}, 400
-    res = res.to_dict()
-    return {
-        "trains": res
-    }, 200
 
+    res = (
+        trains
+        .dropna(subset=["OccupancyPercentage"])
+        .groupby("TrainCategory")["OccupancyPercentage"]
+        .mean()
+        .round(2)
+    )
+    
+    print(res)
+
+    if res.empty:
+        return {"error": "No data available"}, 400
+
+    result = {k: float(v) for k, v in res.to_dict().items()}
+
+    return {"trains": result}, 200
+
+
+# -----------------------------------
+# Zone-wise Average Occupancy
+# -----------------------------------
 def get_ZoneVise_TrainsOccupancy():
-    res = trains.groupby("RailwayZone")["OccupancyPercentage"].mean()
+
+    res = (
+        trains
+        .dropna(subset=["OccupancyPercentage"])
+        .groupby("RailwayZone")["OccupancyPercentage"]
+        .mean()
+        .round(2)
+    )
+    print(res)
     if res.empty:
-        return {"error": "Invalid Entry"}, 400
-    res = res.to_dict()
-    return {
-        "trains": res
-    }, 200
+        return {"error": "No data available"}, 400
 
+    result = {k: float(v) for k, v in res.to_dict().items()}
 
-
-
-
-
-
-
+    return {"trains": result}, 200

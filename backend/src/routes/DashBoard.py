@@ -1,6 +1,3 @@
-
-#phase - 1 part 1 creating dashboard endpoint
-
 from flask import Blueprint, jsonify
 from src.controllers.DashBoard import DashBoard
 
@@ -10,5 +7,5 @@ def register_dashboard_routes(app):
 
     @app.route("/api/dashBoard", methods=["GET"])
     def getDashBoard():
-        data = DashBoard()
-        return jsonify(data)
+        data, status = DashBoard()   # unpack the (dict, status_code) tuple
+        return jsonify(data), status

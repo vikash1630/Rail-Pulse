@@ -59,7 +59,7 @@ def register_routes(app):
 
 
 
-    @app.route("/api/trian/zone", methods=["GET"])
+    @app.route("/api/train/zone", methods=["GET"])
     def get_train_by_zone_function():
         train_zone = request.args.get("zone")
         print(train_zone)
@@ -73,7 +73,7 @@ def register_routes(app):
 
         return jsonify(data), status
 
-    @app.route("/api/trian/category", methods=["GET"])
+    @app.route("/api/train/category", methods=["GET"])
     def get_train_by_category_function():
         train_cat = request.args.get("cat")
         print(train_cat)
