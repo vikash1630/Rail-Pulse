@@ -8,6 +8,7 @@ import DashBoard from "./components/backendpages/DashBoard"
 import Revenue from "./components/backendpages/Revenue"
 import About from "./pages/About"
 import Contact from "./pages/Contact"
+import LiveTrain from "./components/backendpages/LiveTrain"
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/train" element={<Train />} />
         <Route path="/About" element={<About />} />
         <Route path="/Contact" element={<Contact />} />
+        <Route path="/LiveTrain" element={<LiveTrain />} />
 
       </Routes>
 

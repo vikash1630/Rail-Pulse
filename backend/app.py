@@ -12,6 +12,7 @@ from src.routes.TrainRoute import Train_Routes
 from src.routes.DemandAnalysis import Demand_Routes
 from src.routes.RevenueAnalytics import RevenueAnalytics
 from src.routes.InfrastructureAnalytics import register_infrastructure_routes
+from src.routes.LiveTrain import LiveTrain_Routes
 from src.model import seed_trains_to_database
 
 # Load environment variables
@@ -43,6 +44,7 @@ Train_Routes(app)
 Demand_Routes(app)
 RevenueAnalytics(app)
 register_infrastructure_routes(app)
+LiveTrain_Routes(app)
 
 @app.route("/")
 def home():
