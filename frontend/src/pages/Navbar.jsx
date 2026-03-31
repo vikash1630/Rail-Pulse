@@ -364,8 +364,8 @@ const EXPLORE_ITEMS = [
   { label: "Live Train",      to: "/LiveTrain",        icon:"🛤️" },
 ]
 const MORE_ITEMS = [
-  { label: "About Us",   to: "/About",   icon:"🪔"},
-  { label: "Contact Us", to: "/Contact", icon:"📿"}
+  { label: "About Us",   to: "/About",   icon:"👤"},
+  { label: "Contact Us", to: "/Contact", icon:"☎️"}
 ]
 
 const Navbar = ({ children }) => {

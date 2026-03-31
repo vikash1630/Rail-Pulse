@@ -451,11 +451,11 @@ const DashBoard = () => {
 
             {/* Optimized Image: added w-full, h-full, and loading="lazy" for performance */}
             <img
-              src="https://images.unsplash.com/photo-1515165561175-067240346124?auto=format&fit=crop&q=60&w=1200"
-              alt="Indian Railways"
+              src="https://images.unsplash.com/photo-1572041341933-57caa3b8f6d5?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000"
+              alt="Train Infrastructure"
               loading="lazy"
               className="absolute inset-0 z-0 w-full h-full object-cover transition-opacity duration-700"
-              onLoad={(e) => e.currentTarget.style.opacity = '0.6'} // Fades in only when loaded
+              onLoad={e => { e.currentTarget.style.opacity = '0.5'; }}
               style={{ opacity: 0 }}
             />
 

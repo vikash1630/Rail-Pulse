@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Navbar from './Navbar'
+import Navbar from './Navbar'  // Adjusted import path to match your project structure
 
 /* ═══════════════════════════════════════════════
    DATA
@@ -14,41 +14,98 @@ const ME = {
 }
 
 const PROJECTS = [
-  { name: "Local Lynk",     tag: "E-Commerce",      icon: "🛒", color: "#e8b454", live: "https://local-lynk.vercel.app/" },
+  { name: "Local Lynk",     tag: "E-Commerce",       icon: "🛒", color: "#D4AF37", live: "https://local-lynk.vercel.app/" },
   { name: "IPL Analytics",  tag: "Dashboard",        icon: "📊", color: "#60a5fa", live: "https://ipl-analytics-dashboard-htof.onrender.com" },
-  { name: "Solo Levelling", tag: "Fitness Tracker",  icon: "⚡", color: "#3db87a", live: "https://solo-levelling-fitness-model-app.onrender.com" },
+  { name: "Solo Levelling", tag: "Fitness Tracker",  icon: "⚡", color: "#3CB371", live: "https://solo-levelling-fitness-model-app.onrender.com" },
   { name: "Advanced Notes", tag: "Notes App",        icon: "📝", color: "#a78bfa", live: "https://notes-app-mwwd.onrender.com/" },
 ]
 
+const SOCIALS = [
+  { name: "GitHub",    sub: "View my code",      icon: "⌥",  color: "#D4AF37", href: ME.github,    bg: "rgba(212,175,55,0.1)",  border: "rgba(212,175,55,0.3)" },
+  { name: "LinkedIn",  sub: "Connect with me",   icon: "in", color: "#60a5fa", href: ME.linkedin,  bg: "rgba(96,165,250,0.1)",  border: "rgba(96,165,250,0.3)" },
+  { name: "Portfolio", sub: "See my work",       icon: "◈",  color: "#3CB371", href: ME.portfolio, bg: "rgba(60,179,113,0.1)",  border: "rgba(60,179,113,0.3)" },
+]
+
 /* ═══════════════════════════════════════════════
-   CSS
+   CSS (YUGA THEME SYNCED)
 ═══════════════════════════════════════════════ */
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap');
-
+  /* ── Structural ── */
   .ct-page {
+    background: var(--stone-1);
+    color: var(--text-primary);
+    transition: background 0.6s cubic-bezier(0.25, 0.1, 0.25, 1), color 0.6s ease;
     min-height: 100vh;
-    font-family: 'DM Mono', monospace;
-    color: var(--text-1);
-    background: var(--ink);
+    padding-bottom: 5rem;
     overflow-x: hidden;
   }
 
   .ct-shell {
     position: relative;
-    z-index: 1;
+    z-index: 10;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 3rem 2rem 5rem;
+    padding: 2rem 1.5rem 5rem;
     display: flex;
     flex-direction: column;
     gap: 2.5rem;
   }
 
+  /* ── Typography Utilities ── */
+  .ct-font-mythic   { font-family: var(--font-mythic);   font-weight: 400; }
+  .ct-font-historic { font-family: var(--font-historic); font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; }
+  .ct-font-body     { font-family: var(--font-body); }
+
+  /* ── Train Track Animation (Synced) ── */
+  .ct-train-track {
+    position: relative; width: 100%; height: 48px;
+    background: linear-gradient(transparent 70%, var(--stone-3) 75%, transparent 80%),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><text y="14" x="0" font-size="12">🌲</text></svg>') repeat-x;
+    background-size: auto, 100px 30px;
+    background-position: center, 0 5px;
+    overflow: hidden; z-index: 50; pointer-events: none;
+    display: flex; align-items: center;
+  }
+  .ct-train-loop-container {
+    display: flex; position: absolute; width: 200vw; left: 0;
+    animation: ct-train-rtl 15s linear infinite;
+  }
+  .ct-train-set {
+    display: flex; width: 100vw; justify-content: flex-end; align-items: center; padding-right: 50px;
+  }
+  .ct-bogie {
+    font-size: 26px; width: 30px; display: flex; justify-content: center;
+    filter: drop-shadow(0 4px 3px rgba(0,0,0,0.4));
+  }
+
+  @keyframes ct-train-rtl { 0%{transform:translateX(0)} 100%{transform:translateX(-100vw)} }
+
+  /* ── Live Dot ── */
+  .ct-live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #3CB371; position: relative; flex-shrink: 0;
+  }
+  .ct-live-dot::after {
+    content: ''; position: absolute; inset: -2px; border-radius: 50%;
+    background: #3CB371; opacity: 0.4;
+    animation: ct-ping 1.5s cubic-bezier(0,0,0.2,1) infinite;
+  }
+  @keyframes ct-ping { 75%,100%{transform:scale(2);opacity:0} }
+
+  /* ── Status Bar ── */
+  .ct-status-bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 1rem;
+    padding: 1rem 1.5rem; margin-bottom: -1rem;
+    background: var(--stone-1); border: 1px solid var(--stone-2);
+    box-shadow: var(--shadow-inset); border-radius: 12px;
+    border-left: 4px solid var(--swarna-gold);
+  }
+
   /* ── HERO ── */
   .ct-hero {
-    background: var(--ink-2);
-    border: 1px solid var(--glass-border);
+    background: var(--stone-2);
+    border: 1px solid var(--stone-3);
+    box-shadow: var(--shadow-outset);
     border-radius: 24px;
     padding: 3.5rem 3rem;
     position: relative;
@@ -59,43 +116,59 @@ const CSS = `
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+    background: linear-gradient(90deg, transparent, var(--kansa-bronze), var(--swarna-gold), var(--kansa-bronze), transparent);
+    box-shadow: 0 0 12px var(--kansa-glow);
   }
 
   .ct-chip {
     display: inline-block;
-    font-size: 0.7rem;
+    font-family: var(--font-historic);
+    font-size: 0.65rem;
     letter-spacing: 0.25em;
     text-transform: uppercase;
-    color: var(--gold);
-    border: 1px solid rgba(201,151,58,0.35);
-    background: rgba(201,151,58,0.08);
+    color: var(--swarna-gold);
+    border: 1px solid rgba(212,175,55,0.25);
+    background: rgba(212,175,55,0.1);
     padding: 0.35rem 1rem;
     border-radius: 99px;
     margin-bottom: 1.2rem;
   }
 
   .ct-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(4.5rem, 12vw, 9rem);
-    line-height: 0.88;
-    letter-spacing: 0.04em;
-    background: linear-gradient(130deg, #fff 0%, var(--gold-light) 60%, var(--gold) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 1rem;
+    font-family: var(--font-mythic);
+    font-size: clamp(2.5rem, 5vw, 2.5rem);
+    line-height: 1.1;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    text-shadow: var(--shadow-outset);
   }
 
   .ct-tagline {
-    font-size: clamp(1.1rem, 2.8vw, 1.5rem);
-    color: var(--text-2);
-    line-height: 1.5;
+    font-family: var(--font-body);
+    font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+    color: var(--text-muted);
+    line-height: 1.6;
     max-width: 700px;
-    margin-bottom: 2rem;
-    letter-spacing: 0.01em;
+    margin-bottom: 0;
   }
-  .ct-tagline strong { color: var(--gold-light); font-weight: 500; }
+  .ct-tagline strong { color: var(--swarna-gold); font-weight: 700; }
+
+  /* ── SECTION LABEL ── */
+  .ct-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .ct-label span {
+    font-family: var(--font-historic);
+    font-size: 0.65rem; font-weight: 800;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--kansa-light); white-space: nowrap;
+  }
+  .ct-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--kansa-bronze), transparent);
+  }
 
   /* ── CONTACT ROW ── */
   .ct-contact-row {
@@ -103,61 +176,61 @@ const CSS = `
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
-  @media(max-width:600px){ .ct-contact-row { grid-template-columns: 1fr; } }
+  @media(max-width:700px){ .ct-contact-row { grid-template-columns: 1fr; } }
 
   .ct-contact-card {
     display: flex;
     align-items: center;
-    gap: 1.1rem;
+    gap: 1.2rem;
     padding: 1.6rem 1.8rem;
-    background: var(--ink-2);
-    border: 1px solid var(--glass-border);
+    background: var(--stone-2);
+    border: 1px solid var(--stone-3);
+    box-shadow: var(--shadow-outset);
     border-radius: 20px;
     text-decoration: none;
-    color: var(--text-1);
-    transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+    color: var(--text-primary);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.22s, box-shadow 0.22s;
     position: relative;
     overflow: hidden;
   }
   .ct-contact-card::before {
     content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    opacity: 0;
-    transition: opacity 0.3s;
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    opacity: 0; transition: opacity 0.3s;
   }
   .ct-contact-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(201,151,58,0.3);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 20px rgba(201,151,58,0.1);
+    box-shadow: var(--shadow-outset), var(--diya-glow);
   }
   .ct-contact-card:hover::before { opacity: 1; }
 
   .ct-cc-icon {
     width: 52px; height: 52px;
     border-radius: 14px;
-    background: rgba(201,151,58,0.1);
-    border: 1px solid rgba(201,151,58,0.2);
+    background: rgba(205,127,50,0.1);
+    border: 1px solid rgba(205,127,50,0.25);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.4rem;
     flex-shrink: 0;
-    transition: transform 0.25s;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  .ct-contact-card:hover .ct-cc-icon { transform: scale(1.1) rotate(-5deg); }
+  .ct-contact-card:hover .ct-cc-icon { transform: scale(1.1) rotate(-5deg); box-shadow: var(--diya-glow); }
+  
   .ct-cc-label {
-    font-size: 0.62rem;
+    font-family: var(--font-historic);
+    font-size: 0.6rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--text-3);
+    color: var(--text-muted);
     margin-bottom: 0.3rem;
   }
   .ct-cc-val {
+    font-family: var(--font-body);
     font-size: clamp(0.95rem, 2vw, 1.15rem);
-    color: var(--gold-light);
-    font-weight: 500;
+    color: var(--text-primary);
+    font-weight: 700;
     word-break: break-all;
   }
 
@@ -167,7 +240,7 @@ const CSS = `
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
   }
-  @media(max-width:600px){ .ct-social-row { grid-template-columns: 1fr; } }
+  @media(max-width:700px){ .ct-social-row { grid-template-columns: 1fr; } }
 
   .ct-social-card {
     display: flex;
@@ -175,16 +248,17 @@ const CSS = `
     align-items: center;
     gap: 0.6rem;
     padding: 1.8rem 1rem;
-    background: var(--ink-2);
-    border: 1px solid var(--glass-border);
+    background: var(--stone-2);
+    border: 1px solid var(--stone-3);
+    box-shadow: var(--shadow-outset);
     border-radius: 20px;
     text-decoration: none;
-    transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.22s, box-shadow 0.22s;
   }
-  .ct-social-card:hover { transform: translateY(-5px); }
+  .ct-social-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-outset), var(--diya-glow); }
 
   .ct-social-icon {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: var(--font-mythic);
     font-size: 1.6rem;
     width: 54px; height: 54px;
     border-radius: 16px;
@@ -192,20 +266,22 @@ const CSS = `
     align-items: center;
     justify-content: center;
     border: 1px solid transparent;
-    transition: transform 0.25s;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .ct-social-card:hover .ct-social-icon { transform: scale(1.12) rotate(-6deg); }
+  
   .ct-social-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    letter-spacing: 0.06em;
+    font-family: var(--font-mythic);
+    font-size: clamp(1.4rem, 3vw, 1.8rem);
+    letter-spacing: 0.04em;
     line-height: 1;
   }
   .ct-social-sub {
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
+    font-family: var(--font-historic);
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--text-3);
+    color: var(--text-muted);
   }
 
   /* ── PROJECTS ── */
@@ -214,31 +290,29 @@ const CSS = `
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
-  @media(max-width:640px){ .ct-projects-grid { grid-template-columns: 1fr; } }
+  @media(max-width:700px){ .ct-projects-grid { grid-template-columns: 1fr; } }
 
   .ct-proj-card {
     display: flex;
     align-items: center;
     gap: 1.2rem;
     padding: 1.5rem 1.8rem;
-    background: var(--ink-2);
-    border: 1px solid var(--glass-border);
+    background: var(--stone-2);
+    border: 1px solid var(--stone-3);
+    box-shadow: var(--shadow-outset);
     border-radius: 20px;
     text-decoration: none;
-    color: var(--text-1);
-    transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+    color: var(--text-primary);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.22s, box-shadow 0.22s;
     position: relative;
     overflow: hidden;
   }
   .ct-proj-card::before {
     content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    opacity: 0;
-    transition: opacity 0.3s;
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    opacity: 0; transition: opacity 0.3s;
   }
-  .ct-proj-card:hover { transform: translateY(-4px); }
+  .ct-proj-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-outset), var(--diya-glow); }
   .ct-proj-card:hover::before { opacity: 1; }
 
   .ct-proj-icon {
@@ -250,36 +324,38 @@ const CSS = `
     font-size: 1.5rem;
     flex-shrink: 0;
     border: 1px solid transparent;
-    transition: transform 0.25s;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .ct-proj-card:hover .ct-proj-icon { transform: scale(1.1) rotate(-7deg); }
 
   .ct-proj-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
-    letter-spacing: 0.05em;
+    font-family: var(--font-mythic);
+    font-size: clamp(1.4rem, 3vw, 1.8rem);
+    letter-spacing: 0.04em;
     line-height: 1;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.3rem;
   }
   .ct-proj-tag {
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
+    font-family: var(--font-historic);
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--text-3);
+    color: var(--text-muted);
   }
   .ct-proj-arrow {
     margin-left: auto;
     font-size: 1.4rem;
-    color: var(--text-3);
-    transition: transform 0.22s, color 0.22s;
+    color: var(--text-muted);
+    transition: transform 0.3s, color 0.3s;
     flex-shrink: 0;
   }
-  .ct-proj-card:hover .ct-proj-arrow { transform: translateX(4px); color: var(--gold-light); }
+  .ct-proj-card:hover .ct-proj-arrow { transform: translateX(4px); color: var(--kansa-light); }
 
   /* ── FORM ── */
   .ct-form-wrap {
-    background: var(--ink-2);
-    border: 1px solid var(--glass-border);
+    background: var(--stone-2);
+    border: 1px solid var(--stone-3);
+    box-shadow: var(--shadow-outset);
     border-radius: 24px;
     padding: 3rem 2.5rem;
     position: relative;
@@ -290,149 +366,118 @@ const CSS = `
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+    background: linear-gradient(90deg, transparent, var(--kansa-bronze), var(--swarna-gold), var(--kansa-bronze), transparent);
+    box-shadow: 0 0 12px var(--kansa-glow);
   }
   .ct-form-heading {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
-    letter-spacing: 0.05em;
-    line-height: 1;
-    background: linear-gradient(130deg, #fff 0%, var(--gold-light) 60%, var(--gold) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-family: var(--font-mythic);
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    line-height: 1.1;
+    color: var(--swarna-gold);
     margin-bottom: 0.4rem;
   }
   .ct-form-sub {
-    font-size: 0.85rem;
-    color: var(--text-2);
-    letter-spacing: 0.08em;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--text-muted);
     margin-bottom: 2rem;
   }
   .ct-form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 1.2rem;
+    margin-bottom: 1.2rem;
   }
-  @media(max-width:580px){ .ct-form-grid { grid-template-columns: 1fr; } }
+  @media(max-width:600px){ .ct-form-grid { grid-template-columns: 1fr; } }
 
-  .ct-field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .ct-field { display: flex; flex-direction: column; gap: 0.5rem; }
   .ct-field.full { grid-column: 1 / -1; }
   .ct-field label {
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-3);
+    font-family: var(--font-historic);
+    font-size: 0.65rem; font-weight: 800;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 0.45rem;
+  }
+  .ct-field label::before {
+    content: ''; display: block; width: 5px; height: 5px;
+    border-radius: 50%; background: var(--swarna-gold);
+    box-shadow: 0 0 7px var(--swarna-gold); flex-shrink: 0;
   }
   .ct-field input, .ct-field textarea {
-    background: var(--ink-3);
-    border: 1px solid var(--glass-border);
+    background: var(--stone-1);
+    border: 1px solid var(--stone-3);
+    box-shadow: var(--shadow-inset);
     border-radius: 12px;
-    color: var(--text-1);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.9rem;
-    padding: 0.8rem 1rem;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 1.05rem; font-weight: 600;
+    padding: 0.9rem 1.1rem;
     outline: none;
     resize: none;
     width: 100%;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.25s, box-shadow 0.25s;
   }
-  .ct-field input::placeholder, .ct-field textarea::placeholder { color: var(--text-3); }
+  .ct-field input::placeholder, .ct-field textarea::placeholder { color: var(--text-muted); opacity: 0.5; }
   .ct-field input:focus, .ct-field textarea:focus {
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(201,151,58,0.15);
+    border-color: var(--kansa-bronze);
+    box-shadow: var(--shadow-inset), 0 0 0 3px var(--kansa-glow);
   }
-  .ct-field textarea { min-height: 120px; }
+  .ct-field textarea { min-height: 140px; }
 
   .ct-submit-row {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.2rem;
     flex-wrap: wrap;
-    margin-top: 1.2rem;
+    margin-top: 1.5rem;
   }
   .ct-submit-btn {
-    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
-    color: #111;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    border: none;
-    border-radius: 14px;
-    padding: 1rem 2.5rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(145deg, var(--kansa-light), var(--kansa-bronze));
+    color: var(--stone-1);
+    border: none; border-radius: 10px;
+    font-family: var(--font-historic);
+    font-size: 0.85rem; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    position: relative;
-    overflow: hidden;
+    box-shadow: inset 2px 2px 4px rgba(255,255,255,0.3), inset -2px -2px 4px rgba(0,0,0,0.3), var(--shadow-outset);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative; overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
   }
   .ct-submit-btn::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 60%; height: 100%;
+    content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    transition: left 0.4s;
+    transition: left 0.45s;
   }
-  .ct-submit-btn:hover::after { left: 150%; }
-  .ct-submit-btn:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 8px 28px rgba(201,151,58,0.35);
-  }
+  .ct-submit-btn:hover { background: linear-gradient(145deg, var(--swarna-gold), var(--kansa-light)); box-shadow: var(--diya-glow); transform: translateY(-2px); }
+  .ct-submit-btn:hover::after { left: 160%; }
+  .ct-submit-btn:active { transform: translateY(1px); box-shadow: var(--shadow-inset); }
+
   .ct-submit-note {
-    font-size: 0.62rem;
-    letter-spacing: 0.1em;
-    color: var(--text-3);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--text-muted);
   }
   .ct-success {
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
-    color: #6ee7b7;
+    font-family: var(--font-historic);
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: #3CB371; font-weight: 800;
   }
-
-  /* ── SECTION LABEL ── */
-  .ct-label {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  .ct-label span {
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--gold);
-    white-space: nowrap;
-  }
-  .ct-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(201,151,58,0.4), transparent);
-  }
-    .ct-name {
-      font-size: 3.6rem;
-    }
 
   /* ── ANIMATIONS ── */
-  @keyframes ct-rise {
-    from { opacity: 0; transform: translateY(28px); }
-    to   { opacity: 1; transform: none; }
+  @keyframes ct-fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-  .ct-anim { animation: ct-rise 0.6s cubic-bezier(.22,1,.36,1) both; }
+  .ct-anim { animation: ct-fade-up 0.6s cubic-bezier(0.25, 1, 0.5, 1) both; }
   .ct-d1 { animation-delay: 0.05s; }
   .ct-d2 { animation-delay: 0.15s; }
   .ct-d3 { animation-delay: 0.25s; }
   .ct-d4 { animation-delay: 0.35s; }
   .ct-d5 { animation-delay: 0.45s; }
 `
-
-const SOCIALS = [
-  { name: "GitHub",    sub: "View my code",      icon: "⌥",  color: "#e8b454", href: ME.github,    bg: "rgba(232,180,84,0.1)",   border: "rgba(232,180,84,0.3)" },
-  { name: "LinkedIn",  sub: "Connect with me",   icon: "in", color: "#60a5fa", href: ME.linkedin,  bg: "rgba(96,165,250,0.1)",   border: "rgba(96,165,250,0.3)" },
-  { name: "Portfolio", sub: "See my work",       icon: "◈",  color: "#3db87a", href: ME.portfolio, bg: "rgba(61,184,122,0.1)",   border: "rgba(61,184,122,0.3)" },
-]
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
@@ -452,13 +497,51 @@ export default function Contact() {
     <Navbar>
       <style>{CSS}</style>
       <div className="ct-page">
+        
+        {/* ── Train Track Animation ── */}
+        <div className="ct-train-track">
+          <div className="ct-train-loop-container">
+            <div className="ct-train-set">
+              <div className="ct-bogie">🚂</div>
+              <div className="ct-bogie">🚃</div>
+              <div className="ct-bogie">🚃</div>
+              <div className="ct-bogie">🚃</div>
+            </div>
+            <div className="ct-train-set">
+              <div className="ct-bogie">🚂</div>
+              <div className="ct-bogie">🚃</div>
+              <div className="ct-bogie">🚃</div>
+              <div className="ct-bogie">🚃</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Background glow accents */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+          <div className="absolute -top-40 -right-40 w-[500px] h-[500px] opacity-5 rounded-full blur-[100px]" style={{ background: "var(--swarna-gold)" }} />
+          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] opacity-5 rounded-full blur-[100px]" style={{ background: "var(--kansa-bronze)" }} />
+        </div>
+
         <div className="ct-shell">
+          
+          {/* Status Bar */}
+          <div className="ct-status-bar ct-anim ct-d1">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: 'var(--font-body)', fontSize: '0.85rem' }}>
+              <div className="ct-live-dot" />
+              <span className="ct-font-historic" style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Contact Network <span style={{ color: 'var(--text-primary)', fontWeight: 800 }}>Active</span></span>
+            </div>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: 'var(--font-historic)', fontSize: '0.65rem', color: 'var(--text-muted)' }}>
+              <span>{new Date().toLocaleTimeString("en-IN", { hour12: false })}</span>
+              <span style={{ color: 'var(--kansa-bronze)' }}>•</span>
+              <span>{new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</span>
+            </div>
+          </div>
 
           {/* ── HERO ── */}
           <div className="ct-hero ct-anim ct-d1">
             <div className="ct-chip">Open to Internships · Full Stack · Data Analytics</div>
-            <h1 className="ct-name">{ME.name}</h1>
-            <p className="">
+            <h6 className="ct-name">{ME.name}</h6>
+            <p className="ct-tagline">
               <strong>Full Stack Developer</strong> · B.Tech CSE 2024–28 · MGIT Hyderabad<br />
               Building <strong>scalable web apps</strong> & <strong>analytics platforms</strong> — reach out to collaborate.
             </p>
@@ -468,22 +551,23 @@ export default function Contact() {
           <div className="ct-label ct-anim ct-d2"><span>Direct Contact</span></div>
           <div className="ct-contact-row ct-anim ct-d2">
             <a href={`mailto:${ME.email}`} className="ct-contact-card"
-              style={{ '--bar': 'linear-gradient(90deg, #e8b454, #e8b45488, transparent)' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(232,180,84,0.4)'; e.currentTarget.style.boxShadow='0 12px 32px rgba(0,0,0,0.4), 0 0 24px rgba(232,180,84,0.12)'; e.currentTarget.querySelector('.ct-contact-card-bar').style.opacity='1' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor=''; e.currentTarget.style.boxShadow=''; e.currentTarget.querySelector('.ct-contact-card-bar').style.opacity='0' }}
+              style={{ '--bar': 'linear-gradient(90deg, var(--swarna-gold), transparent)' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.4)'; e.currentTarget.querySelector('.ct-contact-card-bar').style.opacity='1' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor=''; e.currentTarget.querySelector('.ct-contact-card-bar').style.opacity='0' }}
             >
-              <div className="ct-contact-card-bar" style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'linear-gradient(90deg,#e8b454,#e8b45488,transparent)', opacity:0, transition:'opacity 0.3s' }} />
-              <div className="ct-cc-icon">✉️</div>
+              <div className="ct-contact-card-bar" style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'linear-gradient(90deg, var(--swarna-gold), transparent)', opacity:0, transition:'opacity 0.3s' }} />
+              <div className="ct-cc-icon" style={{ color: 'var(--swarna-gold)' }}>✉️</div>
               <div>
                 <div className="ct-cc-label">Email</div>
                 <div className="ct-cc-val">{ME.email}</div>
               </div>
             </a>
             <a href={`tel:${ME.phone.replace(/\s/g,'')}`} className="ct-contact-card"
-              onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(96,165,250,0.4)'; e.currentTarget.style.boxShadow='0 12px 32px rgba(0,0,0,0.4), 0 0 24px rgba(96,165,250,0.12)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor=''; e.currentTarget.style.boxShadow=''; }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(96,165,250,0.4)'; e.currentTarget.querySelector('.ct-contact-card-bar').style.opacity='1' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor=''; e.currentTarget.querySelector('.ct-contact-card-bar').style.opacity='0' }}
             >
-              <div className="ct-cc-icon" style={{ background:'rgba(96,165,250,0.1)', borderColor:'rgba(96,165,250,0.2)' }}>📞</div>
+              <div className="ct-contact-card-bar" style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'linear-gradient(90deg, #60a5fa, transparent)', opacity:0, transition:'opacity 0.3s' }} />
+              <div className="ct-cc-icon" style={{ background:'rgba(96,165,250,0.1)', borderColor:'rgba(96,165,250,0.25)', color: '#60a5fa' }}>📞</div>
               <div>
                 <div className="ct-cc-label">Phone</div>
                 <div className="ct-cc-val">{ME.phone}</div>
@@ -496,8 +580,8 @@ export default function Contact() {
           <div className="ct-social-row ct-anim ct-d3">
             {SOCIALS.map(s => (
               <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer" className="ct-social-card"
-                onMouseEnter={e => { e.currentTarget.style.borderColor=s.border; e.currentTarget.style.boxShadow=`0 12px 32px rgba(0,0,0,0.4), 0 0 24px ${s.color}22`; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor=''; e.currentTarget.style.boxShadow=''; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor=s.border; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor=''; }}
               >
                 <div className="ct-social-icon" style={{ background: s.bg, borderColor: s.border, color: s.color }}>{s.icon}</div>
                 <div className="ct-social-name" style={{ color: s.color }}>{s.name}</div>
@@ -511,10 +595,10 @@ export default function Contact() {
           <div className="ct-projects-grid ct-anim ct-d4">
             {PROJECTS.map(p => (
               <a key={p.name} href={p.live} target="_blank" rel="noopener noreferrer" className="ct-proj-card"
-                onMouseEnter={e => { e.currentTarget.style.borderColor=`${p.color}44`; e.currentTarget.style.boxShadow=`0 12px 32px rgba(0,0,0,0.4), 0 0 24px ${p.color}22`; e.currentTarget.querySelector('.ct-proj-bar').style.opacity='1'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor=''; e.currentTarget.style.boxShadow=''; e.currentTarget.querySelector('.ct-proj-bar').style.opacity='0'; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor=`${p.color}55`; e.currentTarget.querySelector('.ct-proj-bar').style.opacity='1'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor=''; e.currentTarget.querySelector('.ct-proj-bar').style.opacity='0'; }}
               >
-                <div className="ct-proj-bar" style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:`linear-gradient(90deg,${p.color},${p.color}88,transparent)`, opacity:0, transition:'opacity 0.3s' }} />
+                <div className="ct-proj-bar" style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:`linear-gradient(90deg,${p.color}, transparent)`, opacity:0, transition:'opacity 0.3s' }} />
                 <div className="ct-proj-icon" style={{ background:`${p.color}18`, borderColor:`${p.color}30` }}>{p.icon}</div>
                 <div>
                   <div className="ct-proj-name" style={{ color: p.color }}>{p.name}</div>
@@ -556,6 +640,12 @@ export default function Contact() {
                 }
               </div>
             </form>
+          </div>
+
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-[var(--stone-3)] text-center ct-font-historic text-[var(--text-muted)] space-y-2" style={{ fontSize: "0.6rem", letterSpacing: "0.15em" }}>
+            <p>Yatra Marga Intelligence System © 2026</p>
+            <p style={{ color: 'var(--swarna-gold)' }}>▶ CONTACT MODULE OPERATIONAL</p>
           </div>
 
         </div>
