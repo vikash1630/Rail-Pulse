@@ -837,7 +837,9 @@ function StationsTable({ stations, currentStatus }) {
                 <td className="lt-delay-none">{idx + 1}</td>
                 <td className="lt-td-name">{st.station_name || "—"}</td>
                 <td>{st.distance || "—"}</td>
-                <td className="lt-td-timing">{st.timing || "—"}</td>
+                <td className="lt-td-timing">
+                    {st.timing ? st.timing.slice(0, 5) : "—"}
+                </td>
                 <td className={
                   !st.delay || st.delay === "—" || st.delay === "-" ? "lt-delay-none" :
                     late ? "lt-delay-late" : "lt-delay-ok"
@@ -864,7 +866,11 @@ function StationsTable({ stations, currentStatus }) {
                 <span className="lt-mobile-stn-num">#{idx + 1}</span>
               </div>
               <div className="lt-mobile-stn-row2">
-                {st.timing && <span className="lt-mobile-chip timing">🕐 {st.timing}</span>}
+                {st.timing && (
+                    <span className="lt-mobile-chip timing">
+                    🕐 {st.timing.slice(0, 5)}
+                    </span>
+                )}
                 {hasDelay && <span className={`lt-mobile-chip ${late ? "delay-late" : "delay-ok"}`}>⏱ {st.delay}</span>}
                 {st.platform && <span className="lt-mobile-chip plat">🚉 Pf {st.platform}</span>}
                 {st.halt && <span className="lt-mobile-chip halt">⏸ {st.halt}</span>}
