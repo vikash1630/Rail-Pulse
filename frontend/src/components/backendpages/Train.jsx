@@ -1962,10 +1962,10 @@ export default function Train() {
             {/* Ticker inside hero */}
             <div className="relative z-10 tr-ticker mt-4">
               {[
-                { val: "49K+", label: "Trains"     },
+                { val: "10K+", label: "Trains"     },
                 { val: "7",    label: "Modes"      },
                 { val: "18+",  label: "Zones"      },
-                { val: "19",   label: "Categories" },
+                { val: "18+",   label: "Categories" },
               ].map(t => (
                 <div key={t.label} className="tr-ticker-card">
                   <span className="tr-ticker-val">{t.val}</span>
